@@ -37,7 +37,9 @@
 #include "Manager/ShopMgr.h"
 #include "Manager/InventoryMgr.h"
 #include "Manager/EventMgr.h"
+#include "Manager/FateMgr.h"
 #include "Manager/ItemMgr.h"
+#include "Manager/MapMgr.h"
 #include "Manager/MarketMgr.h"
 #include "Manager/RNGMgr.h"
 #include "Manager/NaviMgr.h"
@@ -251,6 +253,8 @@ void WorldServer::run( int32_t argc, char* argv[] )
   auto pBlacklistMgr = std::make_shared< Manager::BlacklistMgr >();
   auto contentFinder = std::make_shared< ContentFinder >();
   auto taskMgr = std::make_shared< Manager::TaskMgr >();
+  auto mapMgr = std::make_shared< Manager::MapMgr >();
+  auto fateMgr = std::make_shared< Manager::FateMgr >();
 
   Common::Service< DebugCommandMgr >::set( pDebugCom );
   Common::Service< Manager::PlayerMgr >::set( pPlayerMgr );
@@ -264,7 +268,8 @@ void WorldServer::run( int32_t argc, char* argv[] )
   Common::Service< Manager::BlacklistMgr >::set( pBlacklistMgr );
   Common::Service< ContentFinder >::set( contentFinder );
   Common::Service< Manager::TaskMgr >::set( taskMgr );
-
+  Common::Service< Manager::MapMgr >::set( mapMgr );
+  Common::Service< Manager::FateMgr >::set( fateMgr );
 
   Logger::info( "World server running on {0}:{1}", m_ip, m_port );
 

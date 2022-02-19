@@ -2579,7 +2579,7 @@ namespace Excel
     int32_t BGM;
     int32_t StarterTalkNpcLayoutId;
     uint16_t Achivement;
-    uint16_t TodoValueType[3];
+    uint16_t TodoValueType[4];
     uint8_t Rule;
     uint8_t Level;
     uint8_t SyncLv;
@@ -2589,7 +2589,7 @@ namespace Excel
     uint8_t padding0 : 6;
     uint8_t IsQuest : 1;
     uint8_t Show2DMap : 1;
-    int8_t padding1[1];
+    int8_t padding1[2];
   };
 
   /* 264399 */
