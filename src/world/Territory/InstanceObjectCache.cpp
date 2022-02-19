@@ -119,7 +119,12 @@ Sapphire::InstanceObjectCache::InstanceObjectCache()
           else if( pEntry->getType() == LgbEntryType::EventRange )
           {
             auto pEventRange = std::reinterpret_pointer_cast< LGB_EVENT_RANGE_ENTRY >( pEntry );
-            m_eventRangeCache.insert( 0, pEventRange );
+            m_eventRangeCache.insert( id, pEventRange );
+          }
+          else if( pEntry->getType() == LgbEntryType::FateRange )
+          {
+            auto pFateRange = std::reinterpret_pointer_cast< LGB_FATE_RANGE_ENTRY >( pEntry );
+            m_fateRangeCache.insert( id, pFateRange );
           }
         }
       }
@@ -128,45 +133,57 @@ Sapphire::InstanceObjectCache::InstanceObjectCache()
   std::cout << "\n";
 
   Logger::debug(
-    "InstanceObjectCache Cached: MapRange: {} ExitRange: {} PopRange: {} EventNpc: {} EventRange: {}",
-    m_mapRangeCache.size(), m_exitRangeCache.size(), m_popRangeCache.size(), m_enpcCache.size(), m_eventRangeCache.size()
+    "InstanceObjectCache Cached: MapRange: {} ExitRange: {} PopRange: {} EventNpc: {} EventRange: {} FateRange: {}",
+    m_mapRangeCache.size(), m_exitRangeCache.size(), m_popRangeCache.size(), m_enpcCache.size(), m_eventRangeCache.size(), m_fateRangeCache.size()
   );
 }
 
+Sapphire::InstanceObjectCache::FateRangePtr
+  Sapphire::InstanceObjectCache::getFateRange( uint32_t fateRangeId )
+{
+  return m_fateRangeCache.get( 0, fateRangeId ).first;
+}
 
 Sapphire::InstanceObjectCache::MapRangePtr
   Sapphire::InstanceObjectCache::getMapRange( uint16_t zoneId, uint32_t mapRangeId )
 {
-  return m_mapRangeCache.get( zoneId, mapRangeId );
+  return m_mapRangeCache.get( zoneId, mapRangeId ).first;
 }
 
 Sapphire::InstanceObjectCache::ExitRangePtr
   Sapphire::InstanceObjectCache::getExitRange( uint16_t zoneId, uint32_t exitRangeId )
 {
-  return m_exitRangeCache.get( zoneId, exitRangeId );
+  return m_exitRangeCache.get( zoneId, exitRangeId ).first;
 }
 
 Sapphire::InstanceObjectCache::PopRangePtr
   Sapphire::InstanceObjectCache::getPopRange( uint32_t popRangeId )
 {
-  return m_popRangeCache.get( 0, popRangeId );
+  return m_popRangeCache.get( 0, popRangeId ).first;
 }
 
 Sapphire::InstanceObjectCache::EObjPtr
   Sapphire::InstanceObjectCache::getEObj( uint32_t eObjId )
 {
-  return m_eobjCache.get( 0, eObjId );
+  return m_eobjCache.get( 0, eObjId ).first;
 }
 
 Sapphire::InstanceObjectCache::ENpcPtr
   Sapphire::InstanceObjectCache::getENpc( uint32_t eNpcId )
 {
-  return m_enpcCache.get( 0, eNpcId );
+  return m_enpcCache.get( 0, eNpcId ).first;
 }
 
-Sapphire::InstanceObjectCache::EventRangePtr Sapphire::InstanceObjectCache::getEventRange( uint32_t eventRangeId )
+std::pair< Sapphire::InstanceObjectCache::EventRangePtr, uint16_t >
+  Sapphire::InstanceObjectCache::getEventRangePair( uint32_t eventRangeId )
 {
   return m_eventRangeCache.get( 0, eventRangeId );
+}
+
+Sapphire::InstanceObjectCache::EventRangePtr
+  Sapphire::InstanceObjectCache::getEventRange( uint32_t eventRangeId )
+{
+  return m_eventRangeCache.get( 0, eventRangeId ).first;
 }
 
 std::shared_ptr< Sapphire::InstanceObjectCache::PopRangeInfo > Sapphire::InstanceObjectCache::getPopRangeInfo( uint32_t popRangeId )

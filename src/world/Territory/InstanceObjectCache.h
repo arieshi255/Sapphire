@@ -11,6 +11,7 @@ struct LGB_POP_RANGE_ENTRY;
 struct LGB_EOBJ_ENTRY;
 struct LGB_ENPC_ENTRY;
 struct LGB_EVENT_RANGE_ENTRY;
+struct LGB_FATE_RANGE_ENTRY;
 
 
 namespace Sapphire
@@ -28,17 +29,17 @@ namespace Sapphire
     ZoneObjectCache m_objectCache;
 
   public:
-    ObjectPtr get( uint16_t zoneId, uint32_t id )
+    std::pair< ObjectPtr, uint16_t > get( uint16_t zoneId, uint32_t id )
     {
       for( auto& entry : m_objectCache )
       {
         auto rangeIt = entry.second.find( id );
         if( rangeIt != entry.second.end() )
         {
-          return rangeIt->second;
+          return std::make_pair( rangeIt->second, entry.first );
         }
       }
-      return nullptr;
+      return std::make_pair( nullptr, 0 );
     }
 
     void insert( uint16_t zoneId, std::shared_ptr< T > entry )
@@ -69,6 +70,7 @@ namespace Sapphire
   class InstanceObjectCache
   {
   public:
+    using FateRangePtr = std::shared_ptr< LGB_FATE_RANGE_ENTRY >;
     using MapRangePtr = std::shared_ptr< LGB_MAP_RANGE_ENTRY >;
     using ExitRangePtr = std::shared_ptr< LGB_EXIT_RANGE_ENTRY >;
     using PopRangePtr = std::shared_ptr< LGB_POP_RANGE_ENTRY >;
@@ -86,6 +88,7 @@ namespace Sapphire
     InstanceObjectCache();
     ~InstanceObjectCache() = default;
 
+    FateRangePtr getFateRange( uint32_t fateRangeId );
     MapRangePtr getMapRange( uint16_t zoneId, uint32_t mapRangeId );
     ExitRangePtr getExitRange( uint16_t zoneId, uint32_t exitRangeId );
     PopRangePtr getPopRange( uint32_t popRangeId );
@@ -95,6 +98,7 @@ namespace Sapphire
 
     EObjPtr getEObj( uint32_t eObjId );
     ENpcPtr getENpc( uint32_t eNpcId );
+    std::pair< EventRangePtr, uint16_t > getEventRangePair( uint32_t eventRangeId );
     EventRangePtr getEventRange( uint32_t eventRangeId );
 
   private:
@@ -104,6 +108,7 @@ namespace Sapphire
     ObjectCache< LGB_EOBJ_ENTRY > m_eobjCache;
     ObjectCache< LGB_ENPC_ENTRY > m_enpcCache;
     ObjectCache< LGB_EVENT_RANGE_ENTRY > m_eventRangeCache;
+    ObjectCache< LGB_FATE_RANGE_ENTRY > m_fateRangeCache;
 
     std::shared_ptr< Framework > m_pFramework;
 
