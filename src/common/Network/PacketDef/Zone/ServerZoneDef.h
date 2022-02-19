@@ -1399,6 +1399,14 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint32_t isNewFlags;
   };
 
+  struct FFXIVIpcFateSyncLimitTime : FFXIVIpcBasePacket< FateSyncLimitTime >
+  {
+    uint32_t directorId;
+    uint32_t padding;
+    uint64_t startTime;
+    uint64_t limitTime;
+  };
+
   template< int ArgCount >
   struct FFXIVIpcMapMarkerN
   {

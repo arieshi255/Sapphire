@@ -34,6 +34,7 @@
 #include "Territory/QuestBattle.h"
 #include "Manager/TerritoryMgr.h"
 #include "Manager/PlayerMgr.h"
+#include "Manager/FateMgr.h"
 #include "Event/EventDefs.h"
 #include "ContentFinder/ContentFinder.h"
 
@@ -72,6 +73,7 @@ DebugCommandMgr::DebugCommandMgr()
   registerCommand( "linkshell", &DebugCommandMgr::linkshell, "Linkshell creation", 1 );
   registerCommand( "cf", &DebugCommandMgr::contentFinder, "Content-Finder", 1 );
   registerCommand( "ew", &DebugCommandMgr::easyWarp, "Easy warping", 1 );
+  registerCommand( "map", &DebugCommandMgr::map, "Updating the map", 1 );
 }
 
 // clear all loaded commands
@@ -1439,4 +1441,35 @@ void DebugCommandMgr::easyWarp( char* data, Sapphire::Entity::Player& player, st
     warpMgr.requestMoveTerritory( player, Common::WarpType::WARP_TYPE_GM, terriMgr.getZoneByTerritoryTypeId( 130 )->getGuId(), { -129.24f, 4.1f, -93.5221f }, -2.30172f );
   else
     PlayerMgr::sendUrgent( player, "{0} is not a valid easyWarp location.", subCommand );
+}
+
+void DebugCommandMgr::map( char* data, Sapphire::Entity::Player& player, std::shared_ptr< DebugCommand > command )
+{
+  std::string cmd( data ), params, subCommand;
+  auto cmdPos = cmd.find_first_of( ' ' );
+
+  if( cmdPos != std::string::npos )
+  {
+    params = cmd.substr( cmdPos + 1 );
+
+    auto p = params.find_first_of( ' ' );
+
+    if( p != std::string::npos )
+    {
+      subCommand = params.substr( 0, p );
+      params = params.substr( subCommand.length() + 1 );
+    }
+    else
+      subCommand = params;
+  }
+
+  if( subCommand == "spawnFate" )
+  {
+    uint32_t fateId;
+    sscanf( params.c_str(), "%d", &fateId );
+
+    auto& fateMgr = Common::Service< Manager::FateMgr >::ref();
+
+    fateMgr.spawnFate( player, fateId );
+  }
 }
