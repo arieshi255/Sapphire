@@ -161,6 +161,17 @@ public:
   };
 };
 
+struct LGB_FATE_RANGE_ENTRY : public LgbEntry
+{
+public:
+  FateRangeData data;
+
+  LGB_FATE_RANGE_ENTRY( char* buf, size_t offset ) : LgbEntry( buf, offset )
+  {
+    data = *reinterpret_cast< FateRangeData* >( buf + offset );
+  };
+};
+
 enum LayerSetReferencedType
 {
   All = 0x0,
