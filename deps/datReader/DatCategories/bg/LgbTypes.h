@@ -163,6 +163,12 @@ struct EventRangeData : public InstanceObject
   TriggerBoxInstanceObject triggerBox;
 };
 
+struct FateRangeData : public InstanceObject
+{
+  TriggerBoxInstanceObject triggerBox;
+  uint32_t fateLayoutLabelId;
+};
+
 struct ExitRangeData : public InstanceObject
 {
   TriggerBoxInstanceObject triggerBoxType;
