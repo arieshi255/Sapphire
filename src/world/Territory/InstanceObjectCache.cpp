@@ -21,6 +21,8 @@ Sapphire::InstanceObjectCache::InstanceObjectCache()
   auto& exdData = Common::Service< Sapphire::Data::ExdData >::ref();
   auto idList = exdData.getIdList< Excel::TerritoryType >();
 
+  std::map< std::string, uint16_t > found;
+
   size_t count = 0;
   for( const auto& id : idList )
   {
@@ -38,6 +40,9 @@ Sapphire::InstanceObjectCache::InstanceObjectCache()
       continue;
 
     path = std::string( "bg/" ) + path.substr( 0, path.find( "/level/" ) );
+
+    if( id > 90 && found.find( path ) == found.end() )
+      found.emplace( path, id );
 
     // TODO: it does feel like this needs to be streamlined into the datReader instead of being done here...
     std::string bgLgbPath( path + "/level/bg.lgb" );
@@ -119,7 +124,8 @@ Sapphire::InstanceObjectCache::InstanceObjectCache()
           else if( pEntry->getType() == LgbEntryType::EventRange )
           {
             auto pEventRange = std::reinterpret_pointer_cast< LGB_EVENT_RANGE_ENTRY >( pEntry );
-            m_eventRangeCache.insert( id, pEventRange );
+            auto zoneId = found.find( path );
+            m_eventRangeCache.insert( zoneId != found.end() ? zoneId->second : id, pEventRange );
           }
           else if( pEntry->getType() == LgbEntryType::FateRange )
           {

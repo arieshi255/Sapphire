@@ -366,6 +366,8 @@ void Territory::queuePacketForZone( Network::Packets::FFXIVPacketBasePtr pPacket
     auto player = m_playerMap.find( pPacketEntry->getSourceActor() );
     if( player != m_playerMap.end() )
     {
+      pPacketEntry->setSourceActor( player->second->getId() );
+      pPacketEntry->setTargetActor( player->second->getId() );
       server.queueForPlayer( player->second->getCharacterId(), pPacketEntry );
       return;
     }
