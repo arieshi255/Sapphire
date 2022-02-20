@@ -143,6 +143,8 @@ namespace Sapphire
     void queuePacketForZone( Entity::Player& sourcePlayer, Network::Packets::FFXIVPacketBasePtr pPacketEntry,
                              bool forSelf = false );
 
+    void queuePacketForZone( Network::Packets::FFXIVPacketBasePtr pPacketEntry );
+
     uint32_t getGuId() const;
 
     uint32_t getNextEObjId();

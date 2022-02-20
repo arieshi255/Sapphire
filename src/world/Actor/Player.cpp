@@ -20,6 +20,7 @@
 #include "Manager/PlayerMgr.h"
 #include "Manager/PartyMgr.h"
 #include "Manager/WarpMgr.h"
+#include "Manager/FateMgr.h"
 
 #include "Territory/Territory.h"
 #include "Territory/InstanceContent.h"
@@ -32,6 +33,7 @@
 #include "Network/PacketWrappers/ActorControlPacket.h"
 #include "Network/PacketWrappers/ActorControlSelfPacket.h"
 #include "Network/PacketWrappers/PlayerSetupPacket.h"
+#include "Network/PacketWrappers/UpdateContentPacket.h"
 
 #include "Network/PacketWrappers/PlayerSpawnPacket.h"
 #include "Network/PacketWrappers/EffectPacket.h"
@@ -479,6 +481,7 @@ void Player::forceZoneing( uint32_t zoneId )
 
 bool Player::exitInstance()
 {
+  auto& server = Common::Service< World::WorldServer >::ref();
   auto& teriMgr = Common::Service< TerritoryMgr >::ref();
   auto& warpMgr = Common::Service< WarpMgr >::ref();
 
@@ -491,6 +494,12 @@ bool Player::exitInstance()
   m_territoryId = m_prevTerritoryId;
 
   warpMgr.requestMoveTerritory( *this, WarpType::WARP_TYPE_CONTENT_END_RETURN, m_prevTerritoryId, m_prevPos, m_prevRot );
+
+  auto zonePacket = makeUpdateContent( getId(), m_territoryTypeId,
+                                       teriMgr.getZoneByTerritoryTypeId( m_territoryTypeId )->getGuId(), 0 );
+  auto zonePacket2 = makeUpdateContent( getId(), m_territoryTypeId, 0 );
+  server.queueForPlayer( getCharacterId(), zonePacket );
+  server.queueForPlayer( getCharacterId(), zonePacket2 );
 
   return true;
 }
@@ -1486,6 +1495,7 @@ uint32_t Player::getPrevTerritoryTypeId() const
 void Player::sendZonePackets()
 {
   auto& teriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
+  auto& fateMgr = Common::Service< World::Manager::FateMgr >::ref();
   auto pZone = teriMgr.getTerritoryByGuId( getTerritoryId() );
 
   auto initPacket = makeZonePacket< FFXIVIpcLogin >( getId() );
@@ -1548,6 +1558,7 @@ void Player::sendZonePackets()
   queuePacket( makeInitZone( *this, *pZone ) );
 
   pZone->onPlayerZoneIn( *this );
+  fateMgr.onPlayerZoneIn( *this );
 
   if( isLogin() )
   {

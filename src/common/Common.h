@@ -627,6 +627,13 @@ namespace Sapphire::Common
     uint32_t Source;
   };
 
+  struct FateData
+  {
+    uint32_t iconId;
+    uint32_t layoutId;
+    uint32_t handlerId;
+  };
+
   enum CharaLook : uint8_t
   {
     Race = 0x00,

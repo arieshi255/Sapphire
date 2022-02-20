@@ -92,8 +92,12 @@ namespace Sapphire::Network::ActorControl
 
     DirectorUpdate = 0x6D,
 
+    SetFateState = 0x74,
     ItemObtainMsg = 0x75,
     FateReqFailMsg = 0x76,
+    SetCharaFateId = 0x77,
+    FateCreateContext = 0x78,
+    FateRemoveContext = 0x79,
     DutyQuestScreenMsg = 0x7B,
 
     ItemObtainIcon = 0x84,
@@ -218,7 +222,18 @@ namespace Sapphire::Network::ActorControl
     SetFavorite = 0x1FC,
     LearnTeleport = 0x1FD,
 
-    OpenRecommendationGuide = 0x200,
+    /*!
+     * param1 = event type bitmask
+     *          1 = Quest
+     *          2 = GuildLeveAssignment
+     *          4 = GuildOrderGuide
+     *          8 = TripleTriad
+     *          16 = CustomTalk
+     *          32 = PreHandler
+     */
+    BeginMapUpdate = 0x1FF,
+    FinishMapUpdate = 0x200,
+
     ArmoryErrorMsg = 0x201,
 
     AchievementPopup = 0x203,

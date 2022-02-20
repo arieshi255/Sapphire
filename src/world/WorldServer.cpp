@@ -309,6 +309,7 @@ void WorldServer::mainLoop()
   auto& contentFinder = Common::Service< ContentFinder >::ref();
 
   auto& taskMgr = Common::Service< World::Manager::TaskMgr >::ref();
+  auto& fateMgr = Common::Service< World::Manager::FateMgr >::ref();
 
   while( isRunning() )
   {
@@ -321,6 +322,7 @@ void WorldServer::mainLoop()
     terriMgr.updateTerritoryInstances( tickCount );
     scriptMgr.update();
     contentFinder.update();
+    fateMgr.onUpdate( tickCount );
     updateSessions( currTime );
 
     DbKeepAlive( currTime );

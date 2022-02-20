@@ -1,4 +1,3 @@
-
 #include <Network/CommonActorControl.h>
 
 #include <Manager/TerritoryMgr.h>
@@ -9,12 +8,46 @@ using namespace Sapphire::Common;
 using namespace Sapphire::Network::ActorControl;
 using namespace Sapphire::World::Manager;
 
-Sapphire::Fate::Fate( uint32_t fateId, uint16_t zoneId ) :
+Sapphire::Fate::Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, uint32_t limitTime, FateData fateData ) :
+  FateDirector( fateId ),
   m_fateId( fateId ),
   m_zoneId( zoneId ),
+  m_fateData( fateData ),
+  m_startTime( startTime ),
+  m_limitTime( limitTime ),
   m_state( Created )
 {
 
+}
+
+FateData Sapphire::Fate::getFateData()
+{
+  return m_fateData;
+}
+
+uint16_t Sapphire::Fate::getZoneId()
+{
+  return m_zoneId;
+}
+
+uint32_t Sapphire::Fate::getFateId()
+{
+  return m_fateId;
+}
+
+uint32_t Sapphire::Fate::getEndTime()
+{
+  return m_startTime + m_limitTime;
+}
+
+uint32_t Sapphire::Fate::getStartTime()
+{
+  return m_startTime;
+}
+
+uint32_t Sapphire::Fate::getLimitTime()
+{
+  return m_limitTime;
 }
 
 bool Sapphire::Fate::init()
