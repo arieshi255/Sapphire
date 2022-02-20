@@ -55,7 +55,7 @@ void Sapphire::World::Manager::MapMgr::updateFates( TerritoryPtr zone, std::map<
     newMapData.emplace( fate.first, EventData { fateData.iconId, fateData.layoutId, fateData.handlerId } );
   }
 
-  sendPackets( zone, newMapData, All, playerId );
+  sendPackets( zone, newMapData, Fates, playerId );
 }
 
 void Sapphire::World::Manager::MapMgr::fillPacket( std::multimap< uint32_t, EventData, less >& mapData, uint32_t* iconIds, uint32_t* layoutIds, uint32_t* handlerIds )
