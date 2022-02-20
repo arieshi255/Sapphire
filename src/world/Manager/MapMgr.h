@@ -24,6 +24,8 @@ namespace Sapphire::World::Manager
       CustomTalk = 16,
       PreHandler = 32,
 
+      Fates = 0x0F,
+
       All = 0x3F
     };
 
