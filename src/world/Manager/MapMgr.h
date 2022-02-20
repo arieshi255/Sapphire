@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Common.h>
 #include "ForwardsZone.h"
 #include "FateMgr.h"
+
+#include "Territory/Territory.h"
 
 #include <bitset>
 #include <map>
@@ -26,9 +29,9 @@ namespace Sapphire::World::Manager
 
     MapMgr();
 
-    void updateFate( Entity::Player& player, FateMgr::FateData& fateData );
+    void updateFate( Entity::Player& player, Fate& fate );
 
-    void updateFates( Entity::Player& player, std::map< uint16_t, std::map< uint32_t, FateMgr::FateData > >& fateMapData );
+    void updateFates( TerritoryPtr zone, std::map< uint32_t, FatePtr >& fateZoneData, uint32_t playerId = 0 );
 
   private:
     struct EventData
@@ -60,7 +63,7 @@ namespace Sapphire::World::Manager
     std::map< uint16_t, std::multimap< uint32_t, EventData, less > > m_mapData;
 
     void fillPacket( std::multimap< uint32_t, EventData, less >& mapData, uint32_t* iconIds, uint32_t* levelIds, uint32_t* eventIds );
-    void sendPackets( Entity::Player& player, std::multimap< uint32_t, EventData, less >& mapData, UpdateMode updateMode );
+    void sendPackets( TerritoryPtr zone, std::multimap< uint32_t, EventData, less >& mapData, UpdateMode updateMode, uint32_t playerId = 0 );
   };
 
 }

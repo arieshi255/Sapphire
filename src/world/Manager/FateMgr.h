@@ -1,30 +1,12 @@
 #pragma once
 
+#include <Common.h>
+#include "ForwardsZone.h"
 #include "Territory/Fate.h"
-#include "Event/Director.h"
-#include "Forwards.h"
-#include <Exd/Structs.h>
-
 namespace Sapphire::World::Manager
 {
   class FateMgr
   {
-  public:
-    struct FateData
-    {
-      uint32_t iconId;
-      uint32_t layoutId;
-      uint32_t handlerId;
-    };
-
-    FateMgr();
-
-    void init();
-
-    void spawnFate( Entity::Player& player, uint32_t fateId );
-
-    uint8_t getFateCount( uint16_t zoneId );
-
   private:
     enum FateState
     {
@@ -36,7 +18,25 @@ namespace Sapphire::World::Manager
       Finished
     };
 
-    std::map< uint16_t, std::map< uint32_t, FateData > > m_fateZoneMap;
-    std::map< uint16_t, std::map< uint32_t, Fate > > m_spawnedFates;
+  public:
+    FateMgr();
+
+    void onUpdate( uint64_t tick );
+
+    void onPlayerZoneIn( Entity::Player& player );
+
+    void sendSyncPacket( Entity::Player& player, Fate& fate );
+
+    void despawnFate( Fate& fate, FateState state );
+
+    void spawnFate( Entity::Player& player, uint32_t fateId );
+
+    uint8_t getFateCount( uint16_t zoneId );
+
+  private:
+    std::map< uint16_t, std::map< uint32_t, Common::FateData > > m_fateZoneMap;
+    std::map< uint16_t, std::map< uint32_t, Sapphire::FatePtr > > m_spawnedFates;
+
+    Event::FateDirector m_globalDirector;
   };
 }

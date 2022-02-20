@@ -519,7 +519,7 @@ void Sapphire::Entity::BNpc::hateListAdd( const Sapphire::Entity::CharaPtr& pCha
 void Sapphire::Entity::BNpc::hateListAddDelayed( const Sapphire::Entity::CharaPtr& pChara, int32_t hateAmount )
 {
   auto& taskMgr = Common::Service< World::Manager::TaskMgr >::ref();
-  auto delayedEmnityTask = std::make_shared< Sapphire::World::DelayedEmnityTask >( 5000, getAsBNpc(), pChara, hateAmount );
+  auto delayedEmnityTask = std::make_shared< Sapphire::World::DelayedEmnityTask >( 2000, getAsBNpc(), pChara, hateAmount );
   taskMgr.queueTask( delayedEmnityTask );
 }
 

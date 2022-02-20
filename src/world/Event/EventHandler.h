@@ -107,6 +107,7 @@ namespace Sapphire::Event
       SwitchTalk = 0x001F,
       Adventure = 0x0020,
       DailyQuestSupply = 0x0021,
+      FateEvent = 0x0022,
       ICDirector = 0x8003,
       QuestBattleDirector = 0x8006,
     };

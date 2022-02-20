@@ -354,6 +354,33 @@ void Territory::queuePacketForZone( Entity::Player& sourcePlayer, Network::Packe
   }
 }
 
+void Territory::queuePacketForZone( Network::Packets::FFXIVPacketBasePtr pPacketEntry )
+{
+  auto& teriMgr = Common::Service< TerritoryMgr >::ref();
+  if( teriMgr.isPrivateTerritory( getTerritoryTypeId() ) )
+    return;
+
+  auto& server = Common::Service< World::WorldServer >::ref();
+
+  if( pPacketEntry->getSourceActor() != 0 )
+  {
+    auto player = m_playerMap.find( pPacketEntry->getSourceActor() );
+    if( player != m_playerMap.end() )
+    {
+      server.queueForPlayer( player->second->getCharacterId(), pPacketEntry );
+      return;
+    }
+  }
+
+  for( const auto& entry : m_playerMap )
+  {
+    auto player = entry.second;
+    pPacketEntry->setSourceActor( player->getId() );
+    pPacketEntry->setTargetActor( player->getId() );
+    server.queueForPlayer( player->getCharacterId(), pPacketEntry );
+  }
+}
+
 uint32_t Territory::getTerritoryTypeId() const
 {
   return m_territoryTypeId;

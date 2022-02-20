@@ -92,8 +92,12 @@ namespace Sapphire::Network::ActorControl
 
     DirectorUpdate = 0x6D,
 
+    SetFateState = 0x74,
     ItemObtainMsg = 0x75,
     FateReqFailMsg = 0x76,
+    SetCharaFateId = 0x77,
+    FateCreateContext = 0x78,
+    FateRemoveContext = 0x79,
     DutyQuestScreenMsg = 0x7B,
 
     ItemObtainIcon = 0x84,

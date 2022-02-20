@@ -35,27 +35,27 @@ Sapphire::World::Manager::MapMgr::MapMgr()
 
 }
 
-void Sapphire::World::Manager::MapMgr::updateFate( Entity::Player& player, FateMgr::FateData& fateData )
+void Sapphire::World::Manager::MapMgr::updateFate( Entity::Player& player, Fate& fate )
 {
   std::multimap< uint32_t, EventData, less > newMapData;
+  auto fateData = fate.getFateData();
 
-  newMapData.emplace( fateData.handlerId & 0xFFFF, EventData { fateData.iconId, fateData.layoutId, fateData.handlerId } );
+  newMapData.emplace( fate.getFateId(), EventData { fateData.iconId, fateData.layoutId, fateData.handlerId } );
 
-  sendPackets( player, newMapData, All );
+  //sendPackets( player, newMapData, All );
 }
 
-void Sapphire::World::Manager::MapMgr::updateFates( Entity::Player& player, std::map< uint16_t, std::map< uint32_t, FateMgr::FateData > >& fateMapData )
+void Sapphire::World::Manager::MapMgr::updateFates( TerritoryPtr zone, std::map< uint32_t, FatePtr >& fateZoneData, uint32_t playerId )
 {
-  auto& fateDataZone = fateMapData[ player.getTerritoryTypeId() ];
   std::multimap< uint32_t, EventData, less > newMapData;
 
-  for( auto fateData : fateDataZone )
+  for( auto& fate : fateZoneData )
   {
-    //if( isFateActive( player, eventData ) ) need to have something like this so it doesn't just add every single fate on the map
-    newMapData.emplace( fateData.first, EventData { fateData.second.iconId, fateData.second.layoutId, fateData.second.handlerId } );
+    auto fateData = fate.second->getFateData();
+    newMapData.emplace( fate.first, EventData { fateData.iconId, fateData.layoutId, fateData.handlerId } );
   }
 
-  sendPackets( player, newMapData, All );
+  sendPackets( zone, newMapData, All, playerId );
 }
 
 void Sapphire::World::Manager::MapMgr::fillPacket( std::multimap< uint32_t, EventData, less >& mapData, uint32_t* iconIds, uint32_t* layoutIds, uint32_t* handlerIds )
@@ -71,75 +71,75 @@ void Sapphire::World::Manager::MapMgr::fillPacket( std::multimap< uint32_t, Even
   }
 }
 
-void Sapphire::World::Manager::MapMgr::sendPackets( Entity::Player& player, std::multimap< uint32_t, EventData, less >& mapData, UpdateMode updateMode )
+void Sapphire::World::Manager::MapMgr::sendPackets( TerritoryPtr zone, std::multimap< uint32_t, EventData, less >& mapData, UpdateMode updateMode, uint32_t playerId )
 {
   auto& server = Common::Service< World::WorldServer >::ref();
 
-  server.queueForPlayer( player.getCharacterId(), makeActorControlSelf( player.getId(), Network::ActorControl::BeginMapUpdate, updateMode ) );
+  zone->queuePacketForZone( makeActorControlSelf( playerId, Network::ActorControl::BeginMapUpdate, updateMode ) );
 
   if( mapData.size() <= 2 )
   {
-    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker2 >( player.getId() );
+    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker2 >( playerId );
     mapUpdatePacket->data().numOfMarkers = mapData.size();
 
     fillPacket( mapData, mapUpdatePacket->data().iconIds, mapUpdatePacket->data().layoutIds, mapUpdatePacket->data().handlerIds );
 
-    server.queueForPlayer( player.getCharacterId(), mapUpdatePacket );
+    zone->queuePacketForZone( mapUpdatePacket );
   }
   else if( mapData.size() <= 4 )
   {
-    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker4 >( player.getId() );
+    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker4 >( playerId );
     mapUpdatePacket->data().numOfMarkers = mapData.size();
 
     fillPacket( mapData, mapUpdatePacket->data().iconIds, mapUpdatePacket->data().layoutIds, mapUpdatePacket->data().handlerIds );
 
-    server.queueForPlayer( player.getCharacterId(), mapUpdatePacket );
+    zone->queuePacketForZone( mapUpdatePacket );
   }
   else if( mapData.size() <= 8 )
   {
-    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker8 >( player.getId() );
+    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker8 >( playerId );
     mapUpdatePacket->data().numOfMarkers = mapData.size();
 
     fillPacket( mapData, mapUpdatePacket->data().iconIds, mapUpdatePacket->data().layoutIds, mapUpdatePacket->data().handlerIds );
 
-    server.queueForPlayer( player.getCharacterId(), mapUpdatePacket );
+    zone->queuePacketForZone( mapUpdatePacket );
   }
   else if( mapData.size() <= 16 )
   {
-    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker16 >( player.getId() );
+    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker16 >( playerId );
     mapUpdatePacket->data().numOfMarkers = mapData.size();
 
     fillPacket( mapData, mapUpdatePacket->data().iconIds, mapUpdatePacket->data().layoutIds, mapUpdatePacket->data().handlerIds );
 
-    server.queueForPlayer( player.getCharacterId(), mapUpdatePacket );
+    zone->queuePacketForZone( mapUpdatePacket );
   }
   else if( mapData.size() <= 32 )
   {
-    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker32 >( player.getId() );
+    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker32 >( playerId );
     mapUpdatePacket->data().numOfMarkers = mapData.size();
 
     fillPacket( mapData, mapUpdatePacket->data().iconIds, mapUpdatePacket->data().layoutIds, mapUpdatePacket->data().handlerIds );
 
-    server.queueForPlayer( player.getCharacterId(), mapUpdatePacket );
+    zone->queuePacketForZone( mapUpdatePacket );
   }
   else if( mapData.size() <= 64 )
   {
-    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker64 >( player.getId() );
+    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker64 >( playerId );
     mapUpdatePacket->data().numOfMarkers = mapData.size();
 
     fillPacket( mapData, mapUpdatePacket->data().iconIds, mapUpdatePacket->data().layoutIds, mapUpdatePacket->data().handlerIds );
 
-    server.queueForPlayer( player.getCharacterId(), mapUpdatePacket );
+    zone->queuePacketForZone( mapUpdatePacket );
   }
   else if( mapData.size() <= 128 )
   {
-    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker128 >( player.getId() );
+    auto mapUpdatePacket = makeZonePacket< FFXIVIpcMapMarker128 >( playerId );
     mapUpdatePacket->data().numOfMarkers = mapData.size();
 
     fillPacket( mapData, mapUpdatePacket->data().iconIds, mapUpdatePacket->data().layoutIds, mapUpdatePacket->data().handlerIds );
 
-    server.queueForPlayer( player.getCharacterId(), mapUpdatePacket );
+    zone->queuePacketForZone( mapUpdatePacket );
   }
 
-  server.queueForPlayer( player.getCharacterId(), makeActorControlSelf( player.getId(), Network::ActorControl::FinishMapUpdate ) );
+  zone->queuePacketForZone( makeActorControlSelf( playerId, Network::ActorControl::FinishMapUpdate ) );
 }
