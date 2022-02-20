@@ -171,7 +171,7 @@ void Sapphire::World::Manager::FateMgr::spawnFate( Entity::Player& player, uint3
   // Fate found in map but not spawned yet
   if( fate != fateDataZone.end() && spawnedFates.find( fateId ) == spawnedFates.end() )
   {
-    auto spawn = make_Fate( fateId, zoneId, Util::getTimeSeconds(), 30, fate->second ); // TODO: Don't hardcode limit time (might be in exd or gotta map it)
+    auto spawn = make_Fate( fateId, zoneId, Util::getTimeSeconds(), 300, fate->second ); // TODO: Don't hardcode limit time (might be in exd or gotta map it)
 
     // Initialize fate
     zone->queuePacketForZone( makeActorControlSelf( 0, FateCreateContext, fateId ) ); 
