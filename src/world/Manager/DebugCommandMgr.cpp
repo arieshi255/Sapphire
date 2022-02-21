@@ -1470,13 +1470,23 @@ void DebugCommandMgr::map( char* data, Sapphire::Entity::Player& player, std::sh
       subCommand = params;
   }
 
+  auto& fateMgr = Common::Service< Manager::FateMgr >::ref();
+
   if( subCommand == "spawnFate" )
   {
     uint32_t fateId;
     sscanf( params.c_str(), "%d", &fateId );
 
-    auto& fateMgr = Common::Service< Manager::FateMgr >::ref();
-
     fateMgr.spawnFate( player, fateId );
+  }
+  else if( subCommand == "despawnFate" )
+  {
+    uint32_t fateId;
+    sscanf( params.c_str(), "%d", &fateId );
+
+    if( auto fate = fateMgr.getFateById( fateId ) )
+    {
+      fateMgr.despawnFate( *fate.value(), Common::FateState::Completed );
+    }
   }
 }
