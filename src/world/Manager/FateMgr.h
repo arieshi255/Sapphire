@@ -16,11 +16,13 @@ namespace Sapphire::World::Manager
 
     void onPlayerZoneIn( Entity::Player& player );
 
-    void sendSyncPacket( Entity::Player& player, Fate& fate );
+    void sendSyncPacket( Fate& fate, uint32_t playerId = 0 );
+
+    void queueFate( uint16_t zoneId, std::map< uint32_t, Common::FateData >& fateZoneData );
 
     void despawnFate( Fate& fate, Common::FateState state );
 
-    void spawnFate( Entity::Player& player, uint32_t fateId );
+    void spawnFate( uint16_t zoneId, uint32_t fateId );
 
     std::optional< Sapphire::FatePtr > getFateById( uint32_t fateId );
 
@@ -61,6 +63,17 @@ namespace Sapphire::World::Manager
       { 907, 2 }
     };
 
+    struct ZoneData
+    {
+      uint32_t lastSpawn;
+      uint32_t spawnTimer;
+    };
+
+    static constexpr auto DefaultWeight = 50;
+    static constexpr auto SpawnTimeLow = 180; // 3 min
+    static constexpr auto SpawnTimeHigh = 420; // 7 mim
+
+    std::map< uint16_t, ZoneData > m_zoneSpawnMap;
     std::map< uint16_t, std::map< uint32_t, Common::FateData > > m_fateZoneMap;
     std::map< uint16_t, std::map< uint32_t, Sapphire::FatePtr > > m_spawnedFates;
 

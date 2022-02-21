@@ -643,6 +643,7 @@ namespace Sapphire::Common
     uint32_t layoutId;
     uint32_t handlerId;
     uint32_t timeLimit;
+    uint16_t weight;
   };
 
   enum CharaLook : uint8_t

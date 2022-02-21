@@ -13,6 +13,7 @@
 #include "Manager/TerritoryMgr.h"
 #include "Manager/EventMgr.h"
 #include "Manager/MapMgr.h"
+#include "Manager/RNGMgr.h"
 
 #include "Actor/Player.h"
 #include "Actor/EventObject.h"
@@ -39,6 +40,7 @@ Sapphire::World::Manager::FateMgr::FateMgr()
 {
   auto& exdData = Common::Service< Data::ExdData >::ref();
   auto& instanceObjectCache = Common::Service< InstanceObjectCache >::ref();
+  auto& RNGMgr = Common::Service< World::Manager::RNGMgr >::ref();
 
   int count = 0;
   for( auto id : exdData.getIdList< Excel::Fate >() )
@@ -53,6 +55,7 @@ Sapphire::World::Manager::FateMgr::FateMgr()
       fateData.iconId = fate->data().Icon;
       fateData.layoutId = pEventRange->header.instanceId;
       fateData.handlerId = id; // TODO: generate this properly..
+      fateData.weight = DefaultWeight;
 
       auto timeId = m_fateTimeMap.find( id );
 
@@ -76,6 +79,13 @@ Sapphire::World::Manager::FateMgr::FateMgr()
   }
 
   Logger::info( "[FateMgr] Cached {} FATEs", count );
+
+  for( auto& fateZone : m_fateZoneMap )
+  {
+    auto zoneData = m_zoneSpawnMap[ fateZone.first ];
+    auto nextSpawn = RNGMgr.getRandGenerator< uint16_t >( SpawnTimeLow, SpawnTimeHigh ).next();
+    m_zoneSpawnMap[ fateZone.first ] = ZoneData{ Util::getTimeSeconds(), nextSpawn };
+  }
 }
 
 void Sapphire::World::Manager::FateMgr::onUpdate( uint64_t tick )
@@ -93,6 +103,56 @@ void Sapphire::World::Manager::FateMgr::onUpdate( uint64_t tick )
       }
     }
   }
+
+  for( auto& fateZone : m_fateZoneMap )
+  {
+    auto zoneData = m_zoneSpawnMap[ fateZone.first ];
+
+    // If enough time has passed since the last spawn
+    if( seconds - zoneData.lastSpawn >= zoneData.spawnTimer )
+    {
+      // Pick a random FATE
+      queueFate( fateZone.first, fateZone.second );
+    }
+  }
+}
+
+void Sapphire::World::Manager::FateMgr::queueFate( uint16_t zoneId, std::map< uint32_t, Common::FateData >& fateZoneData )
+{
+  auto& RNGMgr = Common::Service< World::Manager::RNGMgr >::ref();
+  uint16_t weightSum = 0;
+  uint32_t fateId = 0;
+
+  // Add all the weights together
+  for( auto& fate : fateZoneData )
+    weightSum += fate.second.weight;
+
+  // Find a random number for the next spawn time and for the fate to spawn
+  auto random = RNGMgr.getRandGenerator< uint16_t >( 1, weightSum ).next();
+  auto nextSpawn = RNGMgr.getRandGenerator< uint16_t >( SpawnTimeLow, SpawnTimeHigh ).next();
+
+  for( auto& fate : fateZoneData )
+  {
+    // Find a fate by weight priority and make sure it isn't spawned
+    if( random < fate.second.weight && m_spawnedFates[ zoneId ].find( fate.first ) == m_spawnedFates[ zoneId ].end() )
+    {
+      // After each queue, if the weight had been changed last time, reset it (this could be made more advanced, i.e only reset after x amount of queues)
+      if( fate.second.weight != DefaultWeight )
+        fate.second.weight = DefaultWeight;
+
+      fateId = fate.first;
+      break;
+    }
+
+    random -= fate.second.weight;
+  }
+
+  // Make sure the fate exists before attempting to spawn
+  if( fateZoneData.count( fateId ) != 0 )
+  {
+    spawnFate( zoneId, fateId );
+    m_zoneSpawnMap[ zoneId ] = ZoneData{ Util::getTimeSeconds(), nextSpawn };
+  }
 }
 
 void Sapphire::World::Manager::FateMgr::onPlayerZoneIn( Entity::Player& player )
@@ -106,8 +166,8 @@ void Sapphire::World::Manager::FateMgr::onPlayerZoneIn( Entity::Player& player )
   for( auto& spawnedFate : m_spawnedFates[ player.getTerritoryTypeId() ] )
   {
     server.queueForPlayer( player.getCharacterId(), { makeActorControlSelf( player.getId(), FateCreateContext, spawnedFate.first ), 
-                                                      makeActorControlSelf( player.getId(), SetFateState, spawnedFate.first, Active ) } );
-    sendSyncPacket( player, *spawnedFate.second );
+                                                      makeActorControlSelf( player.getId(), SetFateState, spawnedFate.first, static_cast< uint32_t >( FateState::Active ) ) } );
+    sendSyncPacket( *spawnedFate.second, player.getId() );
   }
 
   auto zone = terriMgr.getZoneByTerritoryTypeId( player.getTerritoryTypeId() );
@@ -119,18 +179,22 @@ void Sapphire::World::Manager::FateMgr::onPlayerZoneIn( Entity::Player& player )
     mapMgr.updateFates( zone, m_spawnedFates[ player.getTerritoryTypeId() ], player.getId() );
 }
 
-void Sapphire::World::Manager::FateMgr::sendSyncPacket( Entity::Player& player, Fate& fate )
+void Sapphire::World::Manager::FateMgr::sendSyncPacket( Fate& fate, uint32_t playerId )
 {
-  auto& server = Common::Service< World::WorldServer >::ref();
-  auto fateId = fate.getFateId();
+  auto& terriMgr = Common::Service< TerritoryMgr >::ref();
 
-  auto fateSyncPacket = makeZonePacket< FFXIVIpcFateSyncLimitTime >( player.getId() );
-  fateSyncPacket->data().directorId = fateId;
+  auto zone = terriMgr.getZoneByTerritoryTypeId( fate.getZoneId() );
+
+  if( !zone )
+    return;
+
+  auto fateSyncPacket = makeZonePacket< FFXIVIpcFateSyncLimitTime >( playerId );
+  fateSyncPacket->data().directorId = fate.getFateId();
   fateSyncPacket->data().padding = 0;
   fateSyncPacket->data().startTime = fate.getStartTime();
   fateSyncPacket->data().limitTime = fate.getLimitTime();
 
-  server.queueForPlayer( player.getCharacterId(), fateSyncPacket ); // Should probably be sent to the entire zone too
+  zone->queuePacketForZone( fateSyncPacket );
 }
 
 std::optional< Sapphire::FatePtr > Sapphire::World::Manager::FateMgr::getFateById( uint32_t fateId )
@@ -147,7 +211,6 @@ std::optional< Sapphire::FatePtr > Sapphire::World::Manager::FateMgr::getFateByI
 
 void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateState state )
 {
-  auto& server = Common::Service< World::WorldServer >::ref();
   auto& mapMgr = Common::Service< MapMgr >::ref();
   auto& terriMgr = Common::Service< TerritoryMgr >::ref();
 
@@ -162,6 +225,12 @@ void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateState state
   zone->queuePacketForZone( makeActorControlSelf( 0, FateRemoveContext, fateId ) );
   zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( state ) ) );
 
+  // Depending on why it's despawning, adjust the weight accordingly for variance
+  if( state == FateState::Failed )
+    m_fateZoneMap[ zoneId ][ fateId ].weight *= 1.25f;
+  else if( state == FateState::Completed )
+    m_fateZoneMap[ zoneId ][ fateId ].weight = 0;
+
   // Uninitialize fate
   // fate.remove();
 
@@ -171,14 +240,12 @@ void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateState state
   mapMgr.updateFates( zone, m_spawnedFates[ zoneId ] );
 }
 
-// This should really not depend on a player ref, only a zone id
-void Sapphire::World::Manager::FateMgr::spawnFate( Entity::Player& player, uint32_t fateId )
+void Sapphire::World::Manager::FateMgr::spawnFate( uint16_t zoneId, uint32_t fateId )
 {
   auto& server = Common::Service< World::WorldServer >::ref();
   auto& mapMgr = Common::Service< MapMgr >::ref();
   auto& terriMgr = Common::Service< TerritoryMgr >::ref();
 
-  auto zoneId = player.getTerritoryTypeId();
   auto zone = terriMgr.getZoneByTerritoryTypeId( zoneId );
 
   if( !zone )
@@ -200,7 +267,7 @@ void Sapphire::World::Manager::FateMgr::spawnFate( Entity::Player& player, uint3
     zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateState::Preparing ) ) );
 
     // Send sync packet for fate
-    sendSyncPacket( player, *spawn );
+    sendSyncPacket( *spawn );
 
     // Finalize fate
     zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateState::Active ) ) );
