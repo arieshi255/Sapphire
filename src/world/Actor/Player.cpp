@@ -21,6 +21,7 @@
 #include "Manager/PartyMgr.h"
 #include "Manager/WarpMgr.h"
 #include "Manager/FateMgr.h"
+#include "Manager/MapMgr.h"
 
 #include "Territory/Territory.h"
 #include "Territory/InstanceContent.h"
@@ -1573,6 +1574,7 @@ void Player::sendZonePackets()
     partyMgr.onMoveZone( *this );
   }
 
+  Common::Service< World::Manager::MapMgr >::ref().updateAll( *this, pZone );
 }
 
 void Player::setDirectorInitialized( bool isInitialized )

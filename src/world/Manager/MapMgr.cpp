@@ -58,6 +58,15 @@ void Sapphire::World::Manager::MapMgr::updateFates( TerritoryPtr zone, std::map<
   sendPackets( zone, newMapData, Fates, playerId );
 }
 
+void Sapphire::World::Manager::MapMgr::updateAll( Entity::Player& player, TerritoryPtr zone )
+{
+  std::multimap< uint32_t, EventData, less > newMapData;
+
+  // TODO: quest markets, triple triad, etc
+
+  sendPackets( zone, newMapData, All, player.getId() );
+}
+
 void Sapphire::World::Manager::MapMgr::fillPacket( std::multimap< uint32_t, EventData, less >& mapData, uint32_t* iconIds, uint32_t* layoutIds, uint32_t* handlerIds )
 {
   int32_t i = 0;

@@ -35,6 +35,8 @@ namespace Sapphire::World::Manager
 
     void updateFates( TerritoryPtr zone, std::map< uint32_t, FatePtr >& fateZoneData, uint32_t playerId = 0 );
 
+    void updateAll( Entity::Player& player, TerritoryPtr zone );
+
   private:
     struct EventData
     {
