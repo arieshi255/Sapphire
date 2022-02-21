@@ -13,17 +13,7 @@ namespace Sapphire
   class Fate : public Event::FateDirector
   {
   public:
-    enum FateState
-    {
-      Created,
-      InProgress,
-      Finished,
-      Failed,
-      Reset,
-      Expired
-    };
-
-    Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, uint32_t limitTime, Common::FateData fateData );
+    Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, Common::FateData fateData );
 
     Common::FateData getFateData();
 
@@ -39,7 +29,7 @@ namespace Sapphire
     uint32_t m_fateId;
     uint16_t m_zoneId;
 
-    FateState m_state;
+    Common::FateState m_state;
     Common::FateData m_fateData;
 
     uint32_t m_startTime;

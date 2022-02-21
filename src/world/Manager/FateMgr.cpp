@@ -54,6 +54,21 @@ Sapphire::World::Manager::FateMgr::FateMgr()
       fateData.layoutId = pEventRange->header.instanceId;
       fateData.handlerId = id; // TODO: generate this properly..
 
+      auto timeId = m_fateTimeMap.find( id );
+
+      switch( timeId->second )
+      {
+        case 2:
+          fateData.timeLimit = 1800;
+          break;
+        case 3:
+          fateData.timeLimit = 3600;
+          break;
+        default:
+          fateData.timeLimit = 900;
+          break;
+      }
+
       m_fateZoneMap[ zoneId ].emplace( id, fateData );
 
       ++count;
@@ -118,12 +133,16 @@ void Sapphire::World::Manager::FateMgr::sendSyncPacket( Entity::Player& player, 
   server.queueForPlayer( player.getCharacterId(), fateSyncPacket ); // Should probably be sent to the entire zone too
 }
 
-uint8_t Sapphire::World::Manager::FateMgr::getFateCount( uint16_t zoneId )
+std::optional< Sapphire::FatePtr > Sapphire::World::Manager::FateMgr::getFateById( uint32_t fateId )
 {
-  if( m_spawnedFates.find( zoneId ) == m_spawnedFates.end() )
-    return 0;
+  for( auto& zone : m_spawnedFates )
+  {
+    auto fate = zone.second.find( fateId );
+    if( fate != zone.second.end() )
+      return std::optional< Sapphire::FatePtr >( fate->second );
+  }
 
-  return m_spawnedFates[ zoneId ].size();
+  return std::nullopt;
 }
 
 void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateState state )
@@ -141,7 +160,10 @@ void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateState state
 
   // Remove fate from the entire zone
   zone->queuePacketForZone( makeActorControlSelf( 0, FateRemoveContext, fateId ) );
-  zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, state ) );
+  zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( state ) ) );
+
+  // Uninitialize fate
+  // fate.remove();
 
   // Remove from spawned fates list
   m_spawnedFates[ zoneId ].erase( fateId );
@@ -171,23 +193,24 @@ void Sapphire::World::Manager::FateMgr::spawnFate( Entity::Player& player, uint3
   // Fate found in map but not spawned yet
   if( fate != fateDataZone.end() && spawnedFates.find( fateId ) == spawnedFates.end() )
   {
-    auto spawn = make_Fate( fateId, zoneId, Util::getTimeSeconds(), 300, fate->second ); // TODO: Don't hardcode limit time (might be in exd or gotta map it)
+    auto spawn = make_Fate( fateId, zoneId, Util::getTimeSeconds(), fate->second ); 
 
     // Initialize fate
     zone->queuePacketForZone( makeActorControlSelf( 0, FateCreateContext, fateId ) ); 
-    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, Preparing ) );
+    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateState::Preparing ) ) );
 
     // Send sync packet for fate
     sendSyncPacket( player, *spawn );
 
     // Finalize fate
-    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, Active ) );
+    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateState::Active ) ) );
+    
+    spawn->init();
 
     // Add to spawned fates list
     m_spawnedFates[ zoneId ].emplace( fateId, std::move( spawn ) );
 
     // Send map update for fate
     mapMgr.updateFates( zone, m_spawnedFates[ zoneId ] );
-    //mapMgr.updateFate( player, spawn );
   }
 }

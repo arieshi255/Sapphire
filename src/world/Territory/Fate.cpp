@@ -8,16 +8,15 @@ using namespace Sapphire::Common;
 using namespace Sapphire::Network::ActorControl;
 using namespace Sapphire::World::Manager;
 
-Sapphire::Fate::Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, uint32_t limitTime, FateData fateData ) :
+Sapphire::Fate::Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, FateData fateData ) :
   FateDirector( fateId ),
   m_fateId( fateId ),
   m_zoneId( zoneId ),
   m_fateData( fateData ),
   m_startTime( startTime ),
-  m_limitTime( limitTime ),
-  m_state( Created )
+  m_state( FateState::Preparing )
 {
-
+  m_limitTime = fateData.timeLimit;
 }
 
 FateData Sapphire::Fate::getFateData()
@@ -52,5 +51,7 @@ uint32_t Sapphire::Fate::getLimitTime()
 
 bool Sapphire::Fate::init()
 {
+  m_state = FateState::Active;
+
   return true;
 }
