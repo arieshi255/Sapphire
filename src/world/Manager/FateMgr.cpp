@@ -88,20 +88,20 @@ void Sapphire::World::Manager::FateMgr::onPlayerZoneIn( Entity::Player& player )
   auto& mapMgr = Common::Service< MapMgr >::ref();
   auto& terriMgr = Common::Service< TerritoryMgr >::ref();
 
-  auto zone = terriMgr.getZoneByTerritoryTypeId( player.getTerritoryId() );
-
-  if( !zone )
-    return;
-
-  for( auto& spawnedFate : m_spawnedFates[ player.getTerritoryId() ] )
+  for( auto& spawnedFate : m_spawnedFates[ player.getTerritoryTypeId() ] )
   {
     server.queueForPlayer( player.getCharacterId(), { makeActorControlSelf( player.getId(), FateCreateContext, spawnedFate.first ), 
                                                       makeActorControlSelf( player.getId(), SetFateState, spawnedFate.first, Active ) } );
     sendSyncPacket( player, *spawnedFate.second );
   }
 
-  if( m_spawnedFates[ player.getTerritoryId() ].size() > 0 )
-    mapMgr.updateFates( zone, m_spawnedFates[ player.getTerritoryId() ], player.getId() );
+  auto zone = terriMgr.getZoneByTerritoryTypeId( player.getTerritoryTypeId() );
+
+  if( !zone )
+    return;
+
+  if( m_spawnedFates[ player.getTerritoryTypeId() ].size() > 0 )
+    mapMgr.updateFates( zone, m_spawnedFates[ player.getTerritoryTypeId() ], player.getId() );
 }
 
 void Sapphire::World::Manager::FateMgr::sendSyncPacket( Entity::Player& player, Fate& fate )
