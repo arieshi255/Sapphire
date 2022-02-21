@@ -1477,7 +1477,7 @@ void DebugCommandMgr::map( char* data, Sapphire::Entity::Player& player, std::sh
     uint32_t fateId;
     sscanf( params.c_str(), "%d", &fateId );
 
-    fateMgr.spawnFate( player, fateId );
+    fateMgr.spawnFate( player.getTerritoryTypeId(), fateId );
   }
   else if( subCommand == "despawnFate" )
   {
