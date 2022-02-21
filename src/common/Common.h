@@ -627,11 +627,22 @@ namespace Sapphire::Common
     uint32_t Source;
   };
 
+  enum class FateState
+  {
+    Active = 2,
+    Completed = 4,
+    Failed,
+    Preparing1,
+    Preparing = 7,
+    Finished
+  };
+
   struct FateData
   {
     uint32_t iconId;
     uint32_t layoutId;
     uint32_t handlerId;
+    uint32_t timeLimit;
   };
 
   enum CharaLook : uint8_t
