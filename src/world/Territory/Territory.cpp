@@ -858,6 +858,17 @@ uint32_t Territory::getNextEffectSequence()
   return m_effectCounter++;
 }
 
+Entity::BNpcPtr Territory::createBNpcFromLayoutId( uint32_t levelId )
+{
+  auto infoPtr = m_bNpcBaseMap.find( levelId );
+  if( infoPtr == m_bNpcBaseMap.end() )
+    return nullptr;
+
+  auto pBNpc = std::make_shared< Entity::BNpc >( getNextActorId(), infoPtr->second, shared_from_this() );
+  pushActor( pBNpc );
+  return pBNpc;
+}
+
 Entity::BNpcPtr Territory::createBNpcFromInstanceId( uint32_t levelId, uint32_t hp, Common::BNpcType bnpcType, uint32_t triggerOwnerId )
 {
   auto infoPtr = m_bNpcBaseMap.find( levelId );
@@ -868,6 +879,17 @@ Entity::BNpcPtr Territory::createBNpcFromInstanceId( uint32_t levelId, uint32_t 
   pBNpc->setTriggerOwnerId( triggerOwnerId );
   pushActor( pBNpc );
   return pBNpc;
+}
+
+std::vector< uint32_t > Territory::getLayoutIdsByFateId( uint32_t fateId ) const
+{
+  std::vector< uint32_t > ids;
+  for( const auto& infoPtr : m_bNpcBaseMap )
+  {
+    if( infoPtr.second->FateID == fateId )
+      ids.push_back( infoPtr.second->instanceId );
+  }
+  return ids;
 }
 
 Entity::BNpcPtr Territory::getActiveBNpcByEntityId( uint32_t entityId )
@@ -985,6 +1007,7 @@ bool Territory::loadBNpcs()
     bnpc->CustomizeID = res->getInt( 44 );
     bnpc->rotation = res->getFloat( 45 );
     bnpc->Nonpop = res->getInt( 46 );
+    bnpc->FateID = res->getInt( 47 );
 
     m_bNpcBaseMap[ bnpc->instanceId ] = bnpc;
 

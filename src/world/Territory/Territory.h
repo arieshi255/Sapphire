@@ -176,7 +176,11 @@ namespace Sapphire
 
     void addEObj( Entity::EventObjectPtr object );
 
+    Entity::BNpcPtr createBNpcFromLayoutId( uint32_t levelId );
+
     Entity::BNpcPtr createBNpcFromInstanceId( uint32_t levelId, uint32_t hp, Common::BNpcType bnpcType, uint32_t triggerOwnerId = 0 );
+
+    std::vector< uint32_t > getLayoutIdsByFateId( uint32_t fateId ) const;
 
     Entity::BNpcPtr getActiveBNpcByEntityId( uint32_t entityId );
 
