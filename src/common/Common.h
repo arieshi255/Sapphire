@@ -637,6 +637,14 @@ namespace Sapphire::Common
     Finished
   };
 
+  enum class FateRule
+  {
+    Kill = 1,
+    Collect,
+    Escort,
+    Defend
+  };
+
   struct FateData
   {
     uint32_t iconId;
@@ -644,6 +652,7 @@ namespace Sapphire::Common
     uint32_t handlerId;
     uint32_t timeLimit;
     uint16_t weight;
+    FateRule rule;
   };
 
   enum CharaLook : uint8_t
@@ -1566,6 +1575,7 @@ namespace Sapphire::Common
     uint32_t ServerPathId;
     uint32_t EquipmentID;
     uint32_t CustomizeID;
+    uint32_t FateID;
   };
 
   /*
