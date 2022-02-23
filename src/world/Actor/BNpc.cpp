@@ -39,6 +39,7 @@
 #include <Manager/RNGMgr.h>
 #include <Manager/PlayerMgr.h>
 #include <Manager/TaskMgr.h>
+#include <Manager/FateMgr.h>
 #include <Script/ScriptMgr.h>
 #include <Task/RemoveBNpcTask.h>
 #include <Task/FadeBNpcTask.h>
@@ -71,6 +72,7 @@ Sapphire::Entity::BNpc::BNpc( uint32_t id, std::shared_ptr< Common::BNPCInstance
 
   m_bNpcNameId = pInfo->NameId;
   m_bNpcBaseId = pInfo->BaseId;
+  m_bNpcFateId = pInfo->FateID;
 
   m_pos.x = pInfo->x;
   m_pos.y = pInfo->y;
@@ -189,6 +191,7 @@ Sapphire::Entity::BNpc::BNpc( uint32_t id, std::shared_ptr< Common::BNPCInstance
 
   m_bNpcNameId = pInfo->NameId;
   m_bNpcBaseId = pInfo->BaseId;
+  m_bNpcFateId = pInfo->FateID;
 
   m_pos.x = pInfo->x;
   m_pos.y = pInfo->y;
@@ -323,6 +326,11 @@ uint32_t Sapphire::Entity::BNpc::getBNpcBaseId() const
 uint32_t Sapphire::Entity::BNpc::getBNpcNameId() const
 {
   return m_bNpcNameId;
+}
+
+uint32_t Sapphire::Entity::BNpc::getBNpcFateId() const
+{
+  return m_bNpcFateId;
 }
 
 void Sapphire::Entity::BNpc::spawn( PlayerPtr pTarget )
@@ -835,6 +843,7 @@ void Sapphire::Entity::BNpc::onDeath()
   auto& server = Common::Service< World::WorldServer >::ref();
   auto& playerMgr = Common::Service< World::Manager::PlayerMgr >::ref();
   auto& taskMgr = Common::Service< World::Manager::TaskMgr >::ref();
+  auto& fateMgr = Common::Service< World::Manager::FateMgr >::ref();
 
   setTargetId( INVALID_GAME_OBJECT_ID64 );
   m_currentStance = Stance::Passive;
@@ -844,6 +853,9 @@ void Sapphire::Entity::BNpc::onDeath()
 
   taskMgr.queueTask( World::makeFadeBNpcTask( 10000, getAsBNpc() ) );
   taskMgr.queueTask( World::makeRemoveBNpcTask( 12000, getAsBNpc() ) );
+
+  if( auto fate = fateMgr.getFateById( getBNpcFateId() ) )
+    fate.value()->onBNpcKill( getLayoutId() );
 
   auto& exdData = Common::Service< Data::ExdData >::ref();
   auto paramGrowthInfo = exdData.getRow< Excel::ParamGrow >( m_level );

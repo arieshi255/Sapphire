@@ -79,6 +79,7 @@ namespace Sapphire::Entity
 
     uint32_t getBNpcBaseId() const;
     uint32_t getBNpcNameId() const;
+    uint32_t getBNpcFateId() const;
 
     uint8_t getEnemyType() const;
 
@@ -149,6 +150,7 @@ namespace Sapphire::Entity
     uint32_t getLayoutId() const;
 
   private:
+    uint32_t m_bNpcFateId;
     uint32_t m_bNpcBaseId;
     uint32_t m_bNpcNameId;
     uint64_t m_weaponMain;
