@@ -77,6 +77,7 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
 
       m_data.NpcId = bnpc.getBNpcBaseId();
       m_data.NameId = bnpc.getBNpcNameId();
+      m_data.FATE = bnpc.getBNpcFateId();
 
       assert( target.getId() != bnpc.getId() );
 
