@@ -10,6 +10,7 @@
 #include "Territory/Territory.h"
 #include "Manager/HousingMgr.h"
 #include "Manager/WarpMgr.h"
+#include "Manager/FateMgr.h"
 
 #include "Network/GameConnection.h"
 
@@ -624,6 +625,14 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
     case PacketCommand::SYNC_DIRECTOR: // Director init finish
     {
       pZone->onDirectorSync( player );
+      break;
+    }
+    case PacketCommand::FATE_INIT_RETURN:
+    {
+      auto& fateMgr = Service< FateMgr >::ref();
+      uint32_t fateId = param1;
+
+      fateMgr.onInitDirector( player );
       break;
     }
 /*    case PacketCommand::EnterTerritoryEventFinished:// this may still be something else. I think i have seen it elsewhere
