@@ -47,7 +47,7 @@ Sapphire::World::Manager::FateMgr::FateMgr()
   {
     auto fate = exdData.getRow< Excel::Fate >( id );
 
-    if( fate->data().Level != 0 && fate->data().EventRange != 0 )
+    if( fate->data().Level != 0 && fate->data().EventRange != 0 && !fate->getString( fate->data().Text.TitleText ).empty() )
     {
       auto [ pEventRange, zoneId ] = instanceObjectCache.getEventRangePair( fate->data().EventRange );
 
@@ -56,6 +56,7 @@ Sapphire::World::Manager::FateMgr::FateMgr()
       fateData.layoutId = pEventRange->header.instanceId;
       fateData.handlerId = id; // TODO: generate this properly..
       fateData.weight = DefaultWeight;
+      fateData.rule = static_cast< Common::FateRule >( fate->data().Rule );
 
       auto timeId = m_fateTimeMap.find( id );
 
@@ -83,9 +84,14 @@ Sapphire::World::Manager::FateMgr::FateMgr()
   for( auto& fateZone : m_fateZoneMap )
   {
     auto zoneData = m_zoneSpawnMap[ fateZone.first ];
-    auto nextSpawn = RNGMgr.getRandGenerator< uint16_t >( SpawnTimeLow, SpawnTimeHigh ).next();
+    auto nextSpawn = RNGMgr.getRandGenerator< uint16_t >( SpawnTimeLow, SpawnTimeHigh * 2 ).next();
     m_zoneSpawnMap[ fateZone.first ] = ZoneData{ Util::getTimeSeconds(), nextSpawn };
   }
+}
+
+void Sapphire::World::Manager::FateMgr::onInitDirector( Entity::Player& player )
+{
+  m_globalDirector.sendDirectorVars( player );
 }
 
 void Sapphire::World::Manager::FateMgr::onUpdate( uint64_t tick )
@@ -100,6 +106,10 @@ void Sapphire::World::Manager::FateMgr::onUpdate( uint64_t tick )
       {
         despawnFate( *fate.second, FateState::Failed );
         return;
+      }
+      else
+      {
+        fate.second->onUpdate( tick );
       }
     }
   }
@@ -136,13 +146,13 @@ void Sapphire::World::Manager::FateMgr::queueFate( uint16_t zoneId, std::map< ui
     // Find a fate by weight priority and make sure it isn't spawned
     if( random < fate.second.weight && m_spawnedFates[ zoneId ].find( fate.first ) == m_spawnedFates[ zoneId ].end() )
     {
-      // After each queue, if the weight had been changed last time, reset it (this could be made more advanced, i.e only reset after x amount of queues)
-      if( fate.second.weight != DefaultWeight )
-        fate.second.weight = DefaultWeight;
-
       fateId = fate.first;
       break;
     }
+
+    // After each queue, if the weight had been changed last time, reset it (this could be made more advanced, i.e only reset after x amount of queues)
+    if( fate.second.weight != DefaultWeight )
+      fate.second.weight = DefaultWeight;
 
     random -= fate.second.weight;
   }
@@ -271,7 +281,8 @@ void Sapphire::World::Manager::FateMgr::spawnFate( uint16_t zoneId, uint32_t fat
 
     // Finalize fate
     zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateState::Active ) ) );
-    
+
+    // Let the fate setup itself
     spawn->init();
 
     // Add to spawned fates list

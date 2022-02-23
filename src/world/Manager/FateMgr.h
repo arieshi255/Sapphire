@@ -12,6 +12,8 @@ namespace Sapphire::World::Manager
   public:
     FateMgr();
 
+    void onInitDirector( Entity::Player& player );
+
     void onUpdate( uint64_t tick );
 
     void onPlayerZoneIn( Entity::Player& player );
