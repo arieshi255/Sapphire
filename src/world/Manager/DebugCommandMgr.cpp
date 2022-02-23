@@ -1489,4 +1489,13 @@ void DebugCommandMgr::map( char* data, Sapphire::Entity::Player& player, std::sh
       fateMgr.despawnFate( *fate.value(), Common::FateState::Completed );
     }
   }
+  else if( subCommand == "spawnBNpc" )
+  {
+    int instanceId;
+    sscanf( params.c_str(), "%d", &instanceId );
+
+    auto& terriMgr = Common::Service< TerritoryMgr >::ref();
+    auto zone = terriMgr.getZoneByTerritoryTypeId( player.getTerritoryTypeId() );
+    auto bnpc = zone->createBNpcFromInstanceId( instanceId );
+  }
 }
