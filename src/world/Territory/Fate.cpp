@@ -1,6 +1,11 @@
+#include <Service.h>
+#include <Logging/Logger.h>
+#include <Actor/BNpc.h>
+
 #include <Network/CommonActorControl.h>
 
 #include <Manager/TerritoryMgr.h>
+#include <Manager/RNGMgr.h>
 
 #include "Fate.h"
 
@@ -49,9 +54,41 @@ uint32_t Sapphire::Fate::getLimitTime()
   return m_limitTime;
 }
 
+void Sapphire::Fate::onUpdate( uint64_t tick )
+{
+  if( m_state == FateState::Active )
+  {
+    if( m_fateEnemies.size() < MaxEnemySpawn )
+    {
+      
+    }
+  }
+}
+
+void Sapphire::Fate::onBNpcKill( uint32_t instanceId )
+{
+  Logger::debug( "[Fate] #{}: BNpc #{} killed!", m_fateId, instanceId );
+}
+
 bool Sapphire::Fate::init()
 {
   m_state = FateState::Active;
+
+  auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
+  auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
+
+  auto ids = zone->getLayoutIdsByFateId( m_fateId );
+
+  for( const auto id : ids )
+  {
+    auto type = zone->createBNpcFromLayoutId( id )->getEnemyType();
+    if( type == BNpcType::Friendly )
+      m_fateAllies.push_back( id );
+    else
+      m_fateEnemies.push_back( id );
+  }
+
+  // TODO: Need to handle different kinds of fates
 
   return true;
 }

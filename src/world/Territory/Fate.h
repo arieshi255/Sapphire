@@ -23,9 +23,19 @@ namespace Sapphire
     uint32_t getLimitTime();
     uint32_t getEndTime();
 
-    bool init();
+    virtual void onUpdate( uint64_t tick );
+
+    virtual void onBNpcKill( uint32_t instanceId );
+
+    virtual bool init();
 
   private:
+    static constexpr auto MaxEnemySpawn = 5;
+
+    //std::map< uint32_t, Common::BNpcType > m_instanceIds;
+    std::vector< uint32_t > m_fateEnemies;
+    std::vector< uint32_t > m_fateAllies;
+
     uint32_t m_fateId;
     uint16_t m_zoneId;
 
