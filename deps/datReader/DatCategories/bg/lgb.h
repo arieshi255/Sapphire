@@ -188,8 +188,8 @@ struct LayerSetReferenced
 struct LayerSetReferencedList
 {
   LayerSetReferencedType ReferencedType;
-  int LayerSets;
-  int LayerSetCount;
+  int32_t LayerSets;
+  int32_t LayerSetCount;
 };
 
 struct LGB_GROUP_HEADER
@@ -265,6 +265,14 @@ struct LGB_GROUP
         else if( type == LgbEntryType::ExitRange )
         {
           entries.push_back( std::make_shared< LGB_EXIT_RANGE_ENTRY >( buf, entryOffset ) );
+        }
+        else if( type == LgbEntryType::EventRange )
+        {
+          entries.push_back( std::make_shared< LGB_EVENT_RANGE_ENTRY >( buf, entryOffset ) );
+        }
+        else if( type == LgbEntryType::PopRange )
+        {
+          entries.push_back( std::make_shared< LGB_POP_RANGE_ENTRY >( buf, entryOffset ) );
         }
         else if( type == LgbEntryType::MapRange )
         {

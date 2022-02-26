@@ -4,6 +4,7 @@
 
 #include "Manager/EventMgr.h"
 #include <Actor/Player.h>
+#include <Actor/BNpc.h>
 #include <ScriptObject.h>
 #include <Service.h>
 
@@ -38,7 +39,7 @@ private:
   // Entities found in the script data of the quest
   static constexpr auto Actor0 = 1006378;//Jocea
   static constexpr auto Actor1 = 1006379;//Established Astrologian 
-  static constexpr auto Actor2 = 1006380;
+  static constexpr auto Actor2 = 1006380;//Portelaine
   static constexpr auto EventActionRescueUnderMiddle = 35;
 
 public:
@@ -62,7 +63,12 @@ public:
       case Actor1:
       {
         if( quest.getSeq() == Seq1 )
-          Scene00003( quest, player );
+          eventMgr().eventActionStart(
+                  player, getId(), EventActionRescueUnderMiddle,
+                  [ & ]( Entity::Player& player, uint32_t eventId, uint64_t additional ) {
+                    Scene00003( quest, player );
+                  },
+                  nullptr, 0 );
         break;
       }
       case Actor2:

@@ -4,6 +4,7 @@
 
 #include "Manager/EventMgr.h"
 #include <Actor/Player.h>
+#include <Actor/BNpc.h>
 #include <ScriptObject.h>
 #include <Service.h>
 
@@ -103,9 +104,9 @@ public:
   {
   }
 
-  void onBNpcKill( World::Quest& quest, uint16_t nameId, uint32_t entityId, Entity::Player& player ) override
+  void onBNpcKill( World::Quest& quest, Entity::BNpc& bnpc, Entity::Player& player ) override
   {
-    switch( entityId )
+    switch( bnpc.getLayoutId() )
     {
       case Enemy0:
       {
@@ -397,7 +398,7 @@ private:
   void Scene00022Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
   {
     auto instance = teriMgr().getTerritoryByGuId( player.getTerritoryId() );
-    auto enemy0 = instance->createBNpcFromInstanceId( Enemy0, 413 /*TODO: Find the right value*/, Common::BNpcType::Enemy );
+    auto enemy0 = instance->createBNpcFromLayoutId( Enemy0, 413 /*TODO: Find the right value*/, Common::BNpcType::Enemy );
     enemy0->setTriggerOwnerId( player.getId() );
     enemy0->hateListAddDelayed( player.getAsPlayer(), 1 );
   }

@@ -1,6 +1,7 @@
 // FFXIVTheMovie.ParserV3.9
 // fake IsAnnounce table
 #include <Actor/Player.h>
+#include <Actor/BNpc.h>
 #include <ScriptObject.h>
 #include <Service.h>
 #include "Manager/TerritoryMgr.h"
@@ -46,7 +47,7 @@ private:
       }
       case 1:
       {
-        if( quest.getUI8AL() < 5 )
+        if( type == EVENT_ON_BNPC_KILL && param1 == 405 && quest.getUI8AL() < 5 )
         {
           quest.setUI8AL( quest.getUI8AL() + 1 );
           eventMgr().sendEventNotice( player, getId(), 0, 2, quest.getUI8AL(), 5 );
@@ -79,9 +80,9 @@ public:
     onProgress( quest, player, EVENT_ON_EMOTE, actorId, 0, emoteId );
   }
 
-  void onBNpcKill( World::Quest& quest, uint16_t nameId, uint32_t entityId, Sapphire::Entity::Player& player ) override
+  void onBNpcKill( World::Quest& quest, Sapphire::Entity::BNpc& bnpc, Sapphire::Entity::Player& player ) override
   {
-    onProgress( quest, player, EVENT_ON_BNPC_KILL, static_cast< uint64_t >( nameId ), entityId, 0 );
+    onProgress( quest, player, EVENT_ON_BNPC_KILL, static_cast< uint64_t >( bnpc.getBNpcNameId() ), bnpc.getLayoutId(), 0 );
   }
 
   void onWithinRange( World::Quest& quest, Sapphire::Entity::Player& player, uint32_t eventId, uint32_t param1, float x, float y, float z ) override
