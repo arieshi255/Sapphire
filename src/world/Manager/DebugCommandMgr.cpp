@@ -1486,7 +1486,7 @@ void DebugCommandMgr::map( char* data, Sapphire::Entity::Player& player, std::sh
 
     if( auto fate = fateMgr.getFateById( fateId ) )
     {
-      fateMgr.despawnFate( *fate.value(), Common::FateState::Completed );
+      fateMgr.despawnFate( *fate.value(), Common::FateStatus::Completed );
     }
   }
   else if( subCommand == "spawnBNpc" )
@@ -1496,6 +1496,6 @@ void DebugCommandMgr::map( char* data, Sapphire::Entity::Player& player, std::sh
 
     auto& terriMgr = Common::Service< TerritoryMgr >::ref();
     auto zone = terriMgr.getZoneByTerritoryTypeId( player.getTerritoryTypeId() );
-    auto bnpc = zone->createBNpcFromInstanceId( instanceId );
+    auto bnpc = zone->createBNpcFromLayoutId( instanceId );
   }
 }
