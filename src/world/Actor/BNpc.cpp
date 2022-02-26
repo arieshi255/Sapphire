@@ -855,7 +855,7 @@ void Sapphire::Entity::BNpc::onDeath()
   taskMgr.queueTask( World::makeRemoveBNpcTask( 12000, getAsBNpc() ) );
 
   if( auto fate = fateMgr.getFateById( getBNpcFateId() ) )
-    fate.value()->onBNpcKill( getLayoutId() );
+    fate.value()->onBNpcKill( getLayoutId(), static_cast< Common::BNpcType >( getEnemyType() ) );
 
   auto& exdData = Common::Service< Data::ExdData >::ref();
   auto paramGrowthInfo = exdData.getRow< Excel::ParamGrow >( m_level );
