@@ -22,7 +22,7 @@ namespace Sapphire::World::Manager
 
     void queueFate( uint16_t zoneId, std::map< uint32_t, Common::FateData >& fateZoneData );
 
-    void despawnFate( Fate& fate, Common::FateState state );
+    void despawnFate( Fate& fate, Common::FateStatus state );
 
     void spawnFate( uint16_t zoneId, uint32_t fateId );
 

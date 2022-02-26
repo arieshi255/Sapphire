@@ -27,6 +27,7 @@
 #include "Territory/Fate.h"
 
 #include "Util/Util.h"
+#include "Util/UtilMath.h"
 
 #include "FateMgr.h"
 
@@ -49,7 +50,8 @@ Sapphire::World::Manager::FateMgr::FateMgr()
 
     if( fate->data().Level != 0 && fate->data().EventRange != 0 && !fate->getString( fate->data().Text.TitleText ).empty() )
     {
-      auto [ pEventRange, zoneId ] = instanceObjectCache.getEventRangePair( fate->data().EventRange );
+      auto pEventRange = instanceObjectCache.getEventRange( fate->data().EventRange );
+      auto level = exdData.getRow< Excel::Level >( fate->data().EventRange );
 
       FateData fateData;
       fateData.iconId = fate->data().Icon;
@@ -57,10 +59,16 @@ Sapphire::World::Manager::FateMgr::FateMgr()
       fateData.handlerId = id; // TODO: generate this properly..
       fateData.weight = DefaultWeight;
       fateData.rule = static_cast< Common::FateRule >( fate->data().Rule );
+      fateData.transform = { pEventRange->data.transform.translation.x, pEventRange->data.transform.translation.y, pEventRange->data.transform.translation.z };
+      fateData.scale = pEventRange->data.transform.scale.x;
 
-      auto timeId = m_fateTimeMap.find( id );
+      auto timeFound = m_fateTimeMap.find( id );
+      auto timeId = 0;
 
-      switch( timeId->second )
+      if( timeFound != m_fateTimeMap.end() )
+        timeId = timeFound->second;
+
+      switch( timeId )
       {
         case 2:
           fateData.timeLimit = 1800;
@@ -73,7 +81,7 @@ Sapphire::World::Manager::FateMgr::FateMgr()
           break;
       }
 
-      m_fateZoneMap[ zoneId ].emplace( id, fateData );
+      m_fateZoneMap[ level->data().TerritoryType ].emplace( id, fateData );
 
       ++count;
     }
@@ -102,9 +110,9 @@ void Sapphire::World::Manager::FateMgr::onUpdate( uint64_t tick )
   {
     for( auto& fate : fateZone.second )
     {
-      if( fate.second && seconds >= fate.second->getEndTime() )
+      if( fate.second && ( seconds >= fate.second->getEndTime() || fate.second->getFateStatus() == FateStatus::Completed ) )
       {
-        despawnFate( *fate.second, FateState::Failed );
+        despawnFate( *fate.second, FateStatus::Failed );
         return;
       }
       else
@@ -141,10 +149,21 @@ void Sapphire::World::Manager::FateMgr::queueFate( uint16_t zoneId, std::map< ui
   auto random = RNGMgr.getRandGenerator< uint16_t >( 1, weightSum ).next();
   auto nextSpawn = RNGMgr.getRandGenerator< uint16_t >( SpawnTimeLow, SpawnTimeHigh ).next();
 
+  auto isOverlapping = [ & ]( Common::FFXIVARR_POSITION3 pos )
+                       {
+                         for( auto& spawnedFate : m_spawnedFates[ zoneId ] )
+                         {
+                            if( Util::distance( spawnedFate.second->getFateData().transform, pos ) < spawnedFate.second->getRadius()  )
+                              return true;
+                         }
+                         return false;
+                       };
+
   for( auto& fate : fateZoneData )
   {
-    // Find a fate by weight priority and make sure it isn't spawned
-    if( random < fate.second.weight && m_spawnedFates[ zoneId ].find( fate.first ) == m_spawnedFates[ zoneId ].end() )
+    // Find a fate by weight priority and make sure it isn't spawned or overlapping
+    if( random < fate.second.weight && m_spawnedFates[ zoneId ].find( fate.first ) == m_spawnedFates[ zoneId ].end() &&
+        !isOverlapping( fate.second.transform ) )
     {
       fateId = fate.first;
       break;
@@ -176,7 +195,8 @@ void Sapphire::World::Manager::FateMgr::onPlayerZoneIn( Entity::Player& player )
   for( auto& spawnedFate : m_spawnedFates[ player.getTerritoryTypeId() ] )
   {
     server.queueForPlayer( player.getCharacterId(), { makeActorControlSelf( player.getId(), FateCreateContext, spawnedFate.first ), 
-                                                      makeActorControlSelf( player.getId(), SetFateState, spawnedFate.first, static_cast< uint32_t >( FateState::Active ) ) } );
+                                                      makeActorControlSelf( player.getId(), SetFateState, spawnedFate.first, 
+                                                                            static_cast< uint32_t >( spawnedFate.second->getFateStatus() ) ) } );
     sendSyncPacket( *spawnedFate.second, player.getId() );
   }
 
@@ -219,7 +239,7 @@ std::optional< Sapphire::FatePtr > Sapphire::World::Manager::FateMgr::getFateByI
   return std::nullopt;
 }
 
-void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateState state )
+void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateStatus state )
 {
   auto& mapMgr = Common::Service< MapMgr >::ref();
   auto& terriMgr = Common::Service< TerritoryMgr >::ref();
@@ -236,9 +256,9 @@ void Sapphire::World::Manager::FateMgr::despawnFate( Fate& fate, FateState state
   zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( state ) ) );
 
   // Depending on why it's despawning, adjust the weight accordingly for variance
-  if( state == FateState::Failed )
+  if( state == FateStatus::Failed )
     m_fateZoneMap[ zoneId ][ fateId ].weight *= 1.25f;
-  else if( state == FateState::Completed )
+  else if( state == FateStatus::Completed )
     m_fateZoneMap[ zoneId ][ fateId ].weight = 0;
 
   // Uninitialize fate
@@ -274,13 +294,13 @@ void Sapphire::World::Manager::FateMgr::spawnFate( uint16_t zoneId, uint32_t fat
 
     // Initialize fate
     zone->queuePacketForZone( makeActorControlSelf( 0, FateCreateContext, fateId ) ); 
-    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateState::Preparing ) ) );
+    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateStatus::Preparing ) ) );
 
     // Send sync packet for fate
     sendSyncPacket( *spawn );
 
     // Finalize fate
-    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateState::Active ) ) );
+    zone->queuePacketForZone( makeActorControlSelf( 0, SetFateState, fateId, static_cast< uint32_t >( FateStatus::Active ) ) );
 
     // Let the fate setup itself
     spawn->init();
