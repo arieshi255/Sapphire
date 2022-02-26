@@ -627,16 +627,6 @@ namespace Sapphire::Common
     uint32_t Source;
   };
 
-  enum class FateState
-  {
-    Active = 2,
-    Completed = 4,
-    Failed,
-    Preparing1,
-    Preparing = 7,
-    Finished
-  };
-
   enum class FateRule
   {
     Kill = 1,
@@ -653,6 +643,8 @@ namespace Sapphire::Common
     uint32_t timeLimit;
     uint16_t weight;
     FateRule rule;
+    FFXIVARR_POSITION3 transform;
+    float scale;
   };
 
   enum CharaLook : uint8_t
@@ -1097,6 +1089,7 @@ namespace Sapphire::Common
   {
     Active = 2,
     Inactive = 4,
+    Failed = 5,
     Preparing = 7,
     Completed = 8,
   };
