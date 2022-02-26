@@ -635,6 +635,16 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
       fateMgr.onInitDirector( player );
       break;
     }
+    case PacketCommand::FATE_SYNC_CONTEXT_WORK:
+    {
+      auto& fateMgr = Service< FateMgr >::ref();
+      uint32_t fateId = param1;
+
+      if( auto fate = fateMgr.getFateById( fateId ) )
+        fate.value()->onPlayerEnter( player );
+
+      break;
+    }
 /*    case PacketCommand::EnterTerritoryEventFinished:// this may still be something else. I think i have seen it elsewhere
     {
       player.setOnEnterEventDone( true );
