@@ -1,16 +1,22 @@
 #include <Service.h>
 #include <Logging/Logger.h>
 #include <Actor/BNpc.h>
+#include <Actor/Player.h>
+#include <Util/UtilMath.h>
 
 #include <Network/CommonActorControl.h>
+#include <Network/PacketWrappers/ActorControlSelfPacket.h>
 
 #include <Manager/TerritoryMgr.h>
 #include <Manager/RNGMgr.h>
+
+#include <WorldServer.h>
 
 #include "Fate.h"
 
 using namespace Sapphire::Common;
 using namespace Sapphire::Network::ActorControl;
+using namespace Sapphire::Network::Packets::WorldPackets::Server;
 using namespace Sapphire::World::Manager;
 
 Sapphire::Fate::Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, FateData fateData ) :
@@ -19,9 +25,26 @@ Sapphire::Fate::Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, Fate
   m_zoneId( zoneId ),
   m_fateData( fateData ),
   m_startTime( startTime ),
-  m_state( FateState::Preparing )
+  m_state( FateStatus::Preparing )
 {
   m_limitTime = fateData.timeLimit;
+  m_radius = Radius; // TODO: account for scale?
+}
+
+Sapphire::Fate::~Fate()
+{
+  auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
+  auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
+
+  for( const auto enemyId : m_fateEnemies )
+  {
+    zone->getActiveBNpcByInstanceId( enemyId )->onDeath(); // TODO: Make them disappear, not die
+  }
+}
+
+FateStatus Sapphire::Fate::getFateStatus()
+{
+  return m_state;
 }
 
 FateData Sapphire::Fate::getFateData()
@@ -54,25 +77,91 @@ uint32_t Sapphire::Fate::getLimitTime()
   return m_limitTime;
 }
 
+float Sapphire::Fate::getRadius()
+{
+  return m_radius;
+}
+
+uint8_t Sapphire::Fate::getProgress()
+{
+  return m_progress;
+}
+
 void Sapphire::Fate::onUpdate( uint64_t tick )
 {
-  if( m_state == FateState::Active )
+  if( m_state == FateStatus::Active )
   {
-    if( m_fateEnemies.size() < MaxEnemySpawn )
+    for( const auto playerId : m_fatePlayers )
     {
-      
+      auto& server = Common::Service< World::WorldServer >::ref();
+      auto player = server.getPlayer( playerId );
+
+      if( Util::distance( m_fateData.transform, player->getPos() ) > m_radius )
+      {
+        Logger::debug( "[Fate #{}]: Player #{} left FATE!", m_fateId, playerId );
+        m_fatePlayers.remove( playerId );
+        return;
+      }
     }
   }
 }
 
-void Sapphire::Fate::onBNpcKill( uint32_t instanceId )
+void Sapphire::Fate::updateProgress( uint8_t progress )
 {
-  Logger::debug( "[Fate] #{}: BNpc #{} killed!", m_fateId, instanceId );
+  m_progress += progress;
+
+  if( m_progress >= 100 )
+  {
+    m_progress = 100;
+    m_state = FateStatus::Completed;
+  }
+
+  auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
+  auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
+
+  zone->queuePacketForZone( makeActorControlSelf( 0, 0x09B, m_fateId, m_progress ) );
+}
+
+void Sapphire::Fate::onBNpcKill( uint32_t instanceId, BNpcType type )
+{
+  Logger::debug( "[Fate #{}]: BNpc #{} killed!", m_fateId, instanceId );
+
+  // TODO: If all the allies get killed, the FATE fails
+  if( type != BNpcType::Enemy )
+  {
+    m_fateAllies.remove( instanceId );
+    return;
+  }
+
+  // If the FATE is "kill enemies", update the progress per kill
+  if( m_fateData.iconId != 60502 && m_fateData.rule == FateRule::Kill && m_progress < 100 )
+    updateProgress( 3 );
+
+  // Horrible, pls fix (move somewhere else too)
+  // If enemies should respawn (most do this)
+  if( m_fateData.iconId != 60502 && m_fateData.rule != FateRule::Escort && m_progress < 100 )
+  {
+    auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
+    auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
+
+    zone->createBNpcFromLayoutId( instanceId ); // Maybe make a task for this so they don't immediately respawn
+  }
+  else
+  {
+    m_fateEnemies.remove( instanceId );
+  }
+}
+
+void Sapphire::Fate::onPlayerEnter( Entity::Player& player )
+{
+  if( std::find( m_fatePlayers.begin(), m_fatePlayers.end(), player.getId() ) == m_fatePlayers.end() )
+    m_fatePlayers.push_back( player.getId() );
+  Logger::debug( "[Fate #{}]: Player #{} entered FATE!", m_fateId, player.getId() );
 }
 
 bool Sapphire::Fate::init()
 {
-  m_state = FateState::Active;
+  m_state = FateStatus::Active;
 
   auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
   auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
