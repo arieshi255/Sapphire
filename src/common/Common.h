@@ -512,8 +512,22 @@ namespace Sapphire::Common
     MateriaAssimilating = 13,
     Dye = 14,
     Glamour = 15,
+    Decipher = 19,
+    Dig = 20,
     HuntingLog = 21,
-    Desynth = 95
+    EmoteImperialSalute = 23,
+    EmoteThrowSnowball = 24,
+    EmoteStepDance = 27,
+    EmoteHarvestDance = 28,
+    EmoteBallDance = 29,
+    EmoteMadervilleDance = 30,
+    Desynth = 95,
+    EmoteBombDance = 98,
+    EmoteHuzzah = 225,
+    EmoteEmbrace = 229,
+    EmoteMostGentlemanly = 244,
+    EmoteFistBump = 259
+
   };
 
   enum ContainerType : uint16_t

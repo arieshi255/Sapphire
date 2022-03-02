@@ -4,61 +4,53 @@
 
 #include "Manager/EventMgr.h"
 #include <Actor/Player.h>
-#include <Actor/BNpc.h>
 #include <ScriptObject.h>
 #include <Service.h>
 
-// Quest Script: GaiUsa906_00801
-// Quest Name: Skeletons in Her Closet
-// Quest ID: 66337
-// Start NPC: 1006263
-// End NPC: 1006688
+#include "Manager/TerritoryMgr.h"
+#include "Territory/Territory.h"
+
+// Quest Script: ManFst408_00522
+// Quest Name: The Black Wolf's Ultimatum
+// Quest ID: 66058
+// Start NPC: 1006573
+// End NPC: 1006690
 
 using namespace Sapphire;
 
-class GaiUsa906 : public Sapphire::ScriptAPI::QuestScript
+class ManFst408 : public Sapphire::ScriptAPI::QuestScript
 {
 private:
   // Basic quest information
   // Quest vars / flags used
+  // BitFlag8
   // UI8AL
 
-  /// Countable Num: 0 Seq: 1 Event: 1 Listener: 2001999
-  /// Countable Num: 0 Seq: 2 Event: 1 Listener: 5010000
-  /// Countable Num: 0 Seq: 3 Event: 15 Listener: 5020000
-  /// Countable Num: 0 Seq: 4 Event: 1 Listener: 1006263
-  /// Countable Num: 0 Seq: 255 Event: 1 Listener: 1006688
+  /// Countable Num: 0 Seq: 1 Event: 1 Listener: 1004433
+  /// Countable Num: 0 Seq: 255 Event: 1 Listener: 1001821
   // Steps in this quest ( 0 is before accepting,
   // 1 is first, 255 means ready for turning it in
   enum Sequence : uint8_t
   {
     Seq0 = 0,
     Seq1 = 1,
-    Seq2 = 2,
-    Seq3 = 3,//Fake Sequence for cutscene
-    Seq4 = 4,
     SeqFinish = 255,
   };
 
   // Entities found in the script data of the quest
-  static constexpr auto Actor0 = 1006263;//Ursandel
-  static constexpr auto Actor2 = 1006688;
-  static constexpr auto CutScene01 = 370;
-  static constexpr auto Eobject0 = 2001999;//Manor Gate
-  static constexpr auto EventActionTouchMiddle = 46;
-  static constexpr auto Instancedungeon0 = 6;
-  static constexpr auto LocFace0 = 604;
-  static constexpr auto LocFace1 = 617;
-  static constexpr auto Poprange0 = 4332869;
-  static constexpr auto Territorytype0 = 148;
-  static constexpr auto UnlockAddNewContentToCf = 3702;
-  static constexpr auto UnlockImageDungeonHaukke = 80;
-  static constexpr auto AchievementCompleteQuest = 784; //Skeletons
+  static constexpr auto Actor0 = 1006573;//Minfilia (Ul'dah)
+  static constexpr auto Actor1 = 1004433;//Elyenora
+  static constexpr auto Actor2 = 1001821;//Bartholomew
+  static constexpr auto Actor3 = 1006690;//Minfilia (Waking Sands)
+  static constexpr auto CutManfst40810 = 115;
+  static constexpr auto CutManfst40820 = 116;
+  static constexpr auto Poprange0 = 4103351;//Ul'dah Airship Landing
+  static constexpr auto Territorytype0 = 130;
 
 public:
-  GaiUsa906() : Sapphire::ScriptAPI::QuestScript( 66337 ){};
-  ~GaiUsa906() = default;
-
+  ManFst408() : Sapphire::ScriptAPI::QuestScript( 66058 ){};
+  ~ManFst408() = default;
+  
   //////////////////////////////////////////////////////////////////////
   // Event Handlers
   void onTalk( World::Quest& quest, Entity::Player& player, uint64_t actorId ) override
@@ -69,44 +61,57 @@ public:
       {
         if( quest.getSeq() == Seq0 )
           Scene00000( quest, player );
-        else if( quest.getSeq() == Seq4 )
-          Scene00005( quest, player );
+        break;
+      }
+      case Actor1:
+      {
+        if( quest.getSeq() == Seq0 )
+          Scene00002( quest, player );
         break;
       }
       case Actor2:
       {
-        if( quest.getSeq() == SeqFinish )
-          Scene00006( quest, player );
+        if( quest.getSeq() == Seq1 )
+          Scene00003( quest, player );
         break;
       }
-      case Eobject0:
+      case Actor3:
       {
-        eventMgr().eventActionStart(
-                player, getId(), EventActionTouchMiddle,
-                [ & ]( Entity::Player& player, uint32_t eventId, uint64_t additional ) {
-                  Scene00003( quest, player );
-                },
-                nullptr, 0 );
+        if( quest.getSeq() == SeqFinish )
+          Scene00005( quest, player );
         break;
       }
     }
   }
 
-  void onEnterTerritory( World::Quest& quest, Entity::Player& player, uint16_t param1, uint16_t param2 ) override
-  {
-    if( quest.getSeq() == Seq3 )
-      Scene00004( quest, player );
-  }
-
 
 private:
+  void travelToPoprange( Entity::Player& player, uint32_t poprangeId, bool sameTerritory )
+  {
+    auto& objectCache = Common::Service< Sapphire::InstanceObjectCache >::ref();
+
+    auto popRangeInfo = objectCache.getPopRangeInfo( poprangeId );
+
+    if( popRangeInfo )
+    {
+      if( sameTerritory )
+      {
+        warpMgr().requestWarp( player, Common::WarpType::WARP_TYPE_NORMAL, popRangeInfo->m_pos, popRangeInfo->m_rotation );
+      }
+      else
+      {
+        auto pTeri = teriMgr().getZoneByTerritoryTypeId( popRangeInfo->m_territoryTypeId );
+        warpMgr().requestMoveTerritory( player, Common::WarpType::WARP_TYPE_NORMAL, pTeri->getGuId(), popRangeInfo->m_pos, popRangeInfo->m_rotation );
+      }
+    }
+  }
   //////////////////////////////////////////////////////////////////////
   // Available Scenes in this quest, not necessarly all are used
   //////////////////////////////////////////////////////////////////////
 
   void Scene00000( World::Quest& quest, Entity::Player& player )
   {
-    eventMgr().playQuestScene( player, getId(), 0, HIDE_HOTBAR, bindSceneReturn( &GaiUsa906::Scene00000Return ) );
+    eventMgr().playQuestScene( player, getId(), 0, HIDE_HOTBAR, bindSceneReturn( &ManFst408::Scene00000Return ) );
   }
 
   void Scene00000Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
@@ -121,7 +126,7 @@ private:
 
   void Scene00001( World::Quest& quest, Entity::Player& player )
   {
-    eventMgr().playQuestScene( player, getId(), 1, FADE_OUT | CONDITION_CUTSCENE | HIDE_UI, bindSceneReturn( &GaiUsa906::Scene00001Return ) );
+    eventMgr().playQuestScene( player, getId(), 1, HIDE_HOTBAR, bindSceneReturn( &ManFst408::Scene00001Return ) );
   }
 
   void Scene00001Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
@@ -133,58 +138,55 @@ private:
 
   void Scene00002( World::Quest& quest, Entity::Player& player )
   {
-    eventMgr().playQuestScene( player, getId(), 2, HIDE_HOTBAR, bindSceneReturn( &GaiUsa906::Scene00002Return ) );
+    eventMgr().playQuestScene( player, getId(), 2, HIDE_HOTBAR, bindSceneReturn( &ManFst408::Scene00002Return ) );
   }
 
   void Scene00002Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
   {
+    travelToPoprange( player, Poprange0, true );
   }
 
   //////////////////////////////////////////////////////////////////////
 
   void Scene00003( World::Quest& quest, Entity::Player& player )
   {
-    eventMgr().playQuestScene( player, getId(), 3, HIDE_HOTBAR, bindSceneReturn( &GaiUsa906::Scene00003Return ) );
+    eventMgr().playQuestScene( player, getId(), 3, HIDE_HOTBAR, bindSceneReturn( &ManFst408::Scene00003Return ) );
   }
 
   void Scene00003Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
   {
-    //TODO: Unlock Haukke Manor
-    eventMgr().sendEventNotice( player, getId(), 0, 0 );
-    quest.setSeq( Seq2 );
+    Scene00004( quest, player );
   }
 
   //////////////////////////////////////////////////////////////////////
 
   void Scene00004( World::Quest& quest, Entity::Player& player )
   {
-    eventMgr().playQuestScene( player, getId(), 4, FADE_OUT | CONDITION_CUTSCENE | HIDE_UI, bindSceneReturn( &GaiUsa906::Scene00004Return ) );
+    eventMgr().playQuestScene( player, getId(), 4, FADE_OUT | CONDITION_CUTSCENE | HIDE_UI, bindSceneReturn( &ManFst408::Scene00004Return ) );
   }
 
   void Scene00004Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
   {
-    eventMgr().sendEventNotice( player, getId(), 2, 0 );
-    quest.setSeq( Seq4 );
+    quest.setSeq( SeqFinish );
   }
 
   //////////////////////////////////////////////////////////////////////
 
   void Scene00005( World::Quest& quest, Entity::Player& player )
   {
-    eventMgr().playQuestScene( player, getId(), 5, HIDE_HOTBAR, bindSceneReturn( &GaiUsa906::Scene00005Return ) );
+    eventMgr().playQuestScene( player, getId(), 5, FADE_OUT | CONDITION_CUTSCENE | HIDE_UI, bindSceneReturn( &ManFst408::Scene00005Return ) );
   }
 
   void Scene00005Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
   {
-    eventMgr().sendEventNotice( player, getId(), 3, 0 );
-    quest.setSeq( SeqFinish );
+    Scene00006( quest, player );
   }
 
   //////////////////////////////////////////////////////////////////////
 
   void Scene00006( World::Quest& quest, Entity::Player& player )
   {
-    eventMgr().playQuestScene( player, getId(), 6, FADE_OUT | CONDITION_CUTSCENE | HIDE_UI, bindSceneReturn( &GaiUsa906::Scene00006Return ) );
+    eventMgr().playQuestScene( player, getId(), 6, HIDE_HOTBAR, bindSceneReturn( &ManFst408::Scene00006Return ) );
   }
 
   void Scene00006Return( World::Quest& quest, Entity::Player& player, const Event::SceneResult& result )
@@ -192,9 +194,9 @@ private:
 
     if( result.getResult( 0 ) == 1 )
     {
-      player.finishQuest( getId(), result.getResult(1) );
+      player.finishQuest( getId() );
     }
   }
 };
 
-EXPOSE_SCRIPT( GaiUsa906 );
+EXPOSE_SCRIPT( ManFst408 );
