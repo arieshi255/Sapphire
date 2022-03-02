@@ -214,16 +214,12 @@ private:
   {
     if( player.hasQuest( Quest0 ) || player.hasQuest( Quest1 ) )
     {
-      if( result.getResult( 0 ) == 1 )
+      if( result.errorCode == 0 || ( result.numOfResults > 0 && result.getResult( 0 ) == 1 ) )
       {
         quest.setSeq( Seq2 );
         player.changePosition( 10, 21, 13, -2 );
         player.forceZoneing( Territorytype0 ); //Teleport to real Limsa
       }
-    }
-    else
-    {
-      return;
     }
   }
 
