@@ -59,6 +59,8 @@ Sapphire::World::Manager::FateMgr::FateMgr()
       fateData.handlerId = id; // TODO: generate this properly..
       fateData.weight = DefaultWeight;
       fateData.rule = static_cast< Common::FateRule >( fate->data().Rule );
+      if( fateData.rule == FateRule::Kill )
+        fateData.rule = fateData.iconId == 60722 ? FateRule::KillBoss : FateRule::Kill;
       fateData.transform = { pEventRange->data.transform.translation.x, pEventRange->data.transform.translation.y, pEventRange->data.transform.translation.z };
       fateData.scale = pEventRange->data.transform.scale.x;
 
@@ -110,9 +112,14 @@ void Sapphire::World::Manager::FateMgr::onUpdate( uint64_t tick )
   {
     for( auto& fate : fateZone.second )
     {
-      if( fate.second && ( seconds >= fate.second->getEndTime() || fate.second->getFateStatus() == FateStatus::Completed ) )
+      if( fate.second && seconds >= fate.second->getEndTime() )
       {
         despawnFate( *fate.second, FateStatus::Failed );
+        return;
+      }
+      else if( fate.second->getFateStatus() != FateStatus::Active )
+      {
+        despawnFate( *fate.second, fate.second->getFateStatus() );
         return;
       }
       else
@@ -153,7 +160,7 @@ void Sapphire::World::Manager::FateMgr::queueFate( uint16_t zoneId, std::map< ui
                        {
                          for( auto& spawnedFate : m_spawnedFates[ zoneId ] )
                          {
-                            if( Util::distance( spawnedFate.second->getFateData().transform, pos ) < spawnedFate.second->getRadius()  )
+                            if( Util::distance( spawnedFate.second->getFateData().transform, pos ) <= spawnedFate.second->getRadius()  )
                               return true;
                          }
                          return false;
@@ -169,11 +176,11 @@ void Sapphire::World::Manager::FateMgr::queueFate( uint16_t zoneId, std::map< ui
       break;
     }
 
+    random -= fate.second.weight;
+
     // After each queue, if the weight had been changed last time, reset it (this could be made more advanced, i.e only reset after x amount of queues)
     if( fate.second.weight != DefaultWeight )
       fate.second.weight = DefaultWeight;
-
-    random -= fate.second.weight;
   }
 
   // Make sure the fate exists before attempting to spawn
@@ -306,7 +313,7 @@ void Sapphire::World::Manager::FateMgr::spawnFate( uint16_t zoneId, uint32_t fat
     spawn->init();
 
     // Add to spawned fates list
-    m_spawnedFates[ zoneId ].emplace( fateId, std::move( spawn ) );
+    m_spawnedFates[ zoneId ].emplace( fateId, spawn );
 
     // Send map update for fate
     mapMgr.updateFates( zone, m_spawnedFates[ zoneId ] );
