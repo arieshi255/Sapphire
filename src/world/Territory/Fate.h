@@ -32,13 +32,15 @@ namespace Sapphire
 
     uint8_t getProgress();
 
+    void updateHate();
+
     void updateProgress( uint8_t progress );
 
     virtual void onUpdate( uint64_t tick );
 
     virtual void onPlayerEnter( Entity::Player& player );
 
-    virtual void onBNpcKill( uint32_t instanceId, Common::BNpcType type );
+    virtual void onBNpcKill( uint32_t layoutId, Common::BNpcType type );
 
     virtual bool init();
 

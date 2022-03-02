@@ -8,7 +8,10 @@
 #include <Network/PacketWrappers/ActorControlSelfPacket.h>
 
 #include <Manager/TerritoryMgr.h>
+#include <Manager/TaskMgr.h>
 #include <Manager/RNGMgr.h>
+
+#include <Task/RespawnBNpcTask.h>
 
 #include <WorldServer.h>
 
@@ -38,7 +41,7 @@ Sapphire::Fate::~Fate()
 
   for( const auto enemyId : m_fateEnemies )
   {
-    zone->getActiveBNpcByInstanceId( enemyId )->onDeath(); // TODO: Make them disappear, not die
+    zone->removeActor( zone->getActiveBNpcByLayoutId( enemyId ) );
   }
 }
 
@@ -99,6 +102,7 @@ void Sapphire::Fate::onUpdate( uint64_t tick )
       if( Util::distance( m_fateData.transform, player->getPos() ) > m_radius )
       {
         Logger::debug( "[Fate #{}]: Player #{} left FATE!", m_fateId, playerId );
+        Logger::debug( "{}", Util::distance( m_fateData.transform, player->getPos() ) );
         m_fatePlayers.remove( playerId );
         return;
       }
@@ -122,33 +126,51 @@ void Sapphire::Fate::updateProgress( uint8_t progress )
   zone->queuePacketForZone( makeActorControlSelf( 0, 0x09B, m_fateId, m_progress ) );
 }
 
-void Sapphire::Fate::onBNpcKill( uint32_t instanceId, BNpcType type )
+void Sapphire::Fate::updateHate()
 {
-  Logger::debug( "[Fate #{}]: BNpc #{} killed!", m_fateId, instanceId );
+  auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
+  auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
 
-  // TODO: If all the allies get killed, the FATE fails
+  // Add all allies to each enemy's hate list
+  for( const auto enemyId : m_fateEnemies )
+    for( const auto allyId : m_fateAllies )
+      zone->getActiveBNpcByLayoutId( enemyId )->hateListAdd( zone->getActiveBNpcByLayoutId( allyId ), 1 );
+}
+
+void Sapphire::Fate::onBNpcKill( uint32_t layoutId, Common::BNpcType type )
+{
+  Logger::debug( "[Fate #{}]: BNpc #{} killed!", m_fateId, layoutId );
+
+  // If all allies die, the FATE fails
   if( type != BNpcType::Enemy )
   {
-    m_fateAllies.remove( instanceId );
+    m_fateAllies.remove( layoutId );
+
+    if( m_fateAllies.empty() )
+      m_state = FateStatus::Failed;
+
     return;
   }
 
   // If the FATE is "kill enemies", update the progress per kill
-  if( m_fateData.iconId != 60502 && m_fateData.rule == FateRule::Kill && m_progress < 100 )
+  if( m_fateData.rule == FateRule::Kill )
     updateProgress( 3 );
 
-  // Horrible, pls fix (move somewhere else too)
-  // If enemies should respawn (most do this)
-  if( m_fateData.iconId != 60502 && m_fateData.rule != FateRule::Escort && m_progress < 100 )
-  {
-    auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
-    auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
+  // If the FATE is "kill boss", update the progress
+  // TODO: Make this update per attack and not all at once
+  if( m_fateData.rule == FateRule::KillBoss )
+    updateProgress( 100 );
 
-    zone->createBNpcFromLayoutId( instanceId ); // Maybe make a task for this so they don't immediately respawn
+  // This needs more work
+  // If enemies should respawn (most do this)
+  if( m_fateData.rule != FateRule::KillBoss && m_fateData.rule != FateRule::Escort )
+  {
+    auto& taskMgr = Common::Service< World::Manager::TaskMgr >::ref();
+    taskMgr.queueTask( World::makeRespawnBNpcTask( 4000, m_zoneId, layoutId, m_fateAllies ) );
   }
   else
   {
-    m_fateEnemies.remove( instanceId );
+    m_fateEnemies.remove( layoutId );
   }
 }
 
@@ -177,7 +199,9 @@ bool Sapphire::Fate::init()
       m_fateEnemies.push_back( id );
   }
 
-  // TODO: Need to handle different kinds of fates
+  updateHate();
+
+  // TODO: Need to handle different kinds of fates better
 
   return true;
 }
