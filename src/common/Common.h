@@ -629,6 +629,7 @@ namespace Sapphire::Common
 
   enum class FateRule
   {
+    KillBoss,
     Kill = 1,
     Collect,
     Escort,
