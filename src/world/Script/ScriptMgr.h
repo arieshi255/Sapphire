@@ -74,6 +74,8 @@ namespace Sapphire::Scripting
 
     bool onEObjHit( Entity::Player& player, uint64_t actorId, uint32_t actionId );
 
+    bool onFateComplete( Entity::Player& player, Fate& fate );
+
     bool onStart( World::Action::Action& action );
 
     bool onInterrupt( World::Action::Action& action );

@@ -259,6 +259,8 @@ namespace Sapphire::ScriptAPI
 
     virtual void onEObjHit( World::Quest& quest, Sapphire::Entity::Player& player, uint64_t actorId, uint32_t actionId );
 
+    virtual void onFateComplete( World::Quest& quest, Sapphire::Entity::Player& player, Sapphire::Fate& fate );
+
     World::Manager::EventMgr& eventMgr()
     {
       return Common::Service< World::Manager::EventMgr >::ref();

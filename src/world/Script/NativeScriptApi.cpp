@@ -182,6 +182,10 @@ namespace Sapphire::ScriptAPI
   {
   }
 
+  void QuestScript::onFateComplete( World::Quest& quest, Sapphire::Entity::Player& player, Sapphire::Fate& fate )
+  {
+  }
+
   ///////////////////////////////////////////////////////////////////
 
   EventObjectScript::EventObjectScript( uint32_t eobjId ) :

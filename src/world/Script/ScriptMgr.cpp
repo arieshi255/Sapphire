@@ -4,6 +4,7 @@
 #include <watchdog/Watchdog.h>
 #include <Service.h>
 
+#include "Territory/Fate.h"
 #include "Territory/Territory.h"
 #include "Territory/InstanceContent.h"
 #include "Territory/QuestBattle.h"
@@ -517,6 +518,37 @@ bool Sapphire::Scripting::ScriptMgr::onEObjHit( Sapphire::Entity::Player& player
 
       World::Quest preQ = quest;
       script->onEObjHit( quest, player, actor, actionId );
+      if( quest != preQ )
+        player.updateQuest( quest );
+    }
+  }
+
+  return didCallScript;
+}
+
+bool Sapphire::Scripting::ScriptMgr::onFateComplete( Entity::Player& player, Fate& fate )
+{
+  auto& eventMgr = Common::Service< World::Manager::EventMgr >::ref();
+  bool didCallScript = false;
+
+  for( size_t i = 0; i < 30; i++ )
+  {
+    auto quest = player.getQuestByIndex( static_cast< uint16_t >( i ));
+    if( quest.getId() == 0 )
+      continue;
+
+    uint32_t questId = quest.getId() | Event::EventHandler::EventHandlerType::Quest << 16;
+
+    auto script = m_nativeScriptMgr->getScript< Sapphire::ScriptAPI::QuestScript >( questId );
+    if( script )
+    {
+      didCallScript = true;
+      std::string objName = eventMgr.getEventName( questId );
+
+      PlayerMgr::sendDebug( player, "Calling: {0}.onFateComplete, fateId${1}, questId#{2}", objName, fate.getFateId(), quest.getId() );
+
+      World::Quest preQ = quest;
+      script->onFateComplete( quest, player, fate );
       if( quest != preQ )
         player.updateQuest( quest );
     }
