@@ -4,6 +4,7 @@
 
 #include "Manager/EventMgr.h"
 #include <Actor/Player.h>
+#include <Territory/Fate.h>
 #include <ScriptObject.h>
 #include <Service.h>
 
@@ -77,15 +78,19 @@ public:
   }
 
   //TODO: This func doesn't exist, leaving behind for future implementation
-  void onFateComplete( World::Quest& quest, Entity::Player& player, uint32_t fateId )
+  void onFateComplete( World::Quest& quest, Entity::Player& player, Sapphire::Fate& fate ) override
   {
-    if( fateId == Fate0 || fateId == Fate1 || fateId == Fate2 || fateId == Fate3 || fateId == Fate4 || fateId == Fate5 ) //Tower of Power FATE
-      quest.setUI8AH( 1 );
-    else if( quest.getUI8AH() > 0 && (fateId == 679 || fateId == 681 || fateId == 683 || fateId == 685 || fateId == 687 || fateId == 689) ) //Embiggened Spriggans FATE
+    auto fateId = fate.getFateId();
+
+    if( quest.getUI8AH() > 0 && ( fateId == Fate0 || fateId == Fate1 || fateId == Fate2 || fateId == Fate3 || fateId == Fate4 || fateId == Fate5 ) ) //Tower of Power FATE
     {
       quest.setUI8AH( 0 );
       quest.setUI8BH( 1 );
       quest.setSeq( SeqFinish );
+    }
+    else if( fateId == 679 || fateId == 681 || fateId == 683 || fateId == 685 || fateId == 687 || fateId == 689 ) //Embiggened Spriggans FATE
+    {
+      quest.setUI8AH( 1 );
     }
   }
 
