@@ -7,6 +7,8 @@
 #include <Network/CommonActorControl.h>
 #include <Network/PacketWrappers/ActorControlSelfPacket.h>
 
+#include <Script/ScriptMgr.h>
+
 #include <Manager/TerritoryMgr.h>
 #include <Manager/TaskMgr.h>
 #include <Manager/RNGMgr.h>
@@ -36,12 +38,27 @@ Sapphire::Fate::Fate( uint32_t fateId, uint16_t zoneId, uint32_t startTime, Fate
 
 Sapphire::Fate::~Fate()
 {
+  auto& server = Common::Service< World::WorldServer >::ref();
+  auto& scriptMgr = Common::Service< Scripting::ScriptMgr >::ref();
   auto& terriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
   auto zone = terriMgr.getZoneByTerritoryTypeId( m_zoneId );
 
+  // When the FATE is completed, call the script function for all active players
+  if( m_state == FateStatus::Completed )
+  {
+    for( const auto playerId : m_fatePlayers )
+    {
+      auto player = server.getPlayer( playerId );
+      if( player )
+        scriptMgr.onFateComplete( *player, *this );
+    }
+  }
+
+  // Remove all spawned enemies
   for( const auto enemyId : m_fateEnemies )
   {
-    zone->removeActor( zone->getActiveBNpcByLayoutId( enemyId ) );
+    if( auto enemy = zone->getActiveBNpcByLayoutId( enemyId ) )
+      zone->removeActor( enemy );
   }
 }
 
@@ -94,9 +111,10 @@ void Sapphire::Fate::onUpdate( uint64_t tick )
 {
   if( m_state == FateStatus::Active )
   {
+    auto& server = Common::Service< World::WorldServer >::ref();
+    
     for( const auto playerId : m_fatePlayers )
     {
-      auto& server = Common::Service< World::WorldServer >::ref();
       auto player = server.getPlayer( playerId );
 
       if( Util::distance( m_fateData.transform, player->getPos() ) > m_radius )
@@ -152,14 +170,13 @@ void Sapphire::Fate::onBNpcKill( uint32_t layoutId, Common::BNpcType type )
     return;
   }
 
-  // If the FATE is "kill enemies", update the progress per kill
-  if( m_fateData.rule == FateRule::Kill )
-    updateProgress( 3 );
-
   // If the FATE is "kill boss", update the progress
-  // TODO: Make this update per attack and not all at once
+  // TODO: Make this update per attack and not all at once (also, some boss FATEs have minions)
   if( m_fateData.rule == FateRule::KillBoss )
     updateProgress( 100 );
+  // If the FATE is "kill enemies", update the progress per kill
+  else if( m_fateData.rule == FateRule::Kill )
+    updateProgress( 3 );
 
   // This needs more work
   // If enemies should respawn (most do this)
