@@ -325,11 +325,13 @@ void Player::calculateStats()
   uint8_t tribe = getLookAt( Common::CharaLook::Tribe );
   uint8_t level = getLevel();
   auto job = static_cast< uint8_t >( getClass() );
+  auto deity = getGuardianDeity();
 
   auto& exdData = Common::Service< Data::ExdData >::ref();
 
   auto classInfo = exdData.getRow< Excel::ClassJob >( job );
   auto tribeInfo = exdData.getRow< Excel::Tribe >( tribe );
+  auto deityInfo = exdData.getRow< Excel::GuardianDeity >( deity );
   auto paramGrowthInfo = exdData.getRow< Excel::ParamGrow >( level );
 
   float base = Math::CalcStats::calculateBaseStat( *this );
@@ -376,6 +378,8 @@ void Player::calculateStats()
   setStatValue( BaseParam::AttackPower, str );
   setStatValue( BaseParam::AttackMagicPotency, inte );
   setStatValue( BaseParam::HealingMagicPotency, mnd );
+
+  setStatValue( BaseParam::PiercingResistance, 0 );
 
   max_mp = Math::CalcStats::calculateMaxMp( *this );
 
@@ -1011,7 +1015,10 @@ void Player::unsetStateFlag( Common::PlayerStateFlag flag )
 void Player::update( uint64_t tickCount )
 {
   if( m_hp <= 0 && m_status != ActorStatus::Dead )
+  {
     die();
+    Service< World::Manager::PlayerMgr >::ref().onDeath( *this );
+  }
 
   if( !isAlive() )
     return;

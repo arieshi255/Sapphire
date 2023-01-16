@@ -185,6 +185,9 @@ namespace Sapphire::ScriptAPI
   void QuestScript::onFateComplete( World::Quest& quest, Sapphire::Entity::Player& player, Sapphire::Fate& fate )
   {
   }
+  void QuestScript::onPlayerDeath( World::Quest& quest, Sapphire::Entity::Player& player )
+  {
+  }
 
   ///////////////////////////////////////////////////////////////////
 
