@@ -313,7 +313,7 @@ void Sapphire::World::Manager::FateMgr::spawnFate( uint16_t zoneId, uint32_t fat
     spawn->init();
 
     // Add to spawned fates list
-    m_spawnedFates[ zoneId ].emplace( fateId, spawn );
+    m_spawnedFates[ zoneId ].emplace( std::make_pair( fateId, std::move( spawn ) ) );
 
     // Send map update for fate
     mapMgr.updateFates( zone, m_spawnedFates[ zoneId ] );
