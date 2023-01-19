@@ -37,10 +37,8 @@
 #include "Network/PacketWrappers/UpdateContentPacket.h"
 
 #include "Network/PacketWrappers/PlayerSpawnPacket.h"
-#include "Network/PacketWrappers/EffectPacket.h"
 #include "Network/PacketWrappers/EffectPacket1.h"
 #include "Network/PacketWrappers/InitZonePacket.h"
-#include "Network/PacketWrappers/WarpPacket.h"
 
 #include "Action/Action.h"
 
@@ -96,12 +94,12 @@ Player::Player() :
   m_invincibilityType = InvincibilityType::InvincibilityNone;
   m_radius = 1.f;
 
-  std::memset( m_questTracking.data(), 0, sizeof( m_questTracking ) );
   memset( m_name, 0, sizeof( m_name ) );
-  memset( m_stateFlags.data(), 0, m_stateFlags.size() );
   memset( m_searchMessage, 0, sizeof( m_searchMessage ) );
-  memset( m_classArray.data(), 0, sizeof( m_classArray.data() ) );
-  memset( m_expArray.data(), 0, sizeof( m_expArray.data() ) );
+  std::fill( std::begin( m_questTracking ), std::end( m_questTracking ), 0 );
+  std::fill( std::begin( m_stateFlags ), std::end( m_stateFlags ), 0 );
+  std::fill( std::begin( m_classArray ), std::end( m_classArray ), 0 );
+  std::fill( std::begin( m_expArray ), std::end( m_expArray ), 0 );
 
   for( uint8_t i = 0; i < 80; ++i )
   {
