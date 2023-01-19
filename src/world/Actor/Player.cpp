@@ -390,6 +390,8 @@ void Player::calculateStats()
 
   if( m_hp > max_hp )
     m_hp = max_hp;
+
+  m_tp = 0;
 }
 
 
@@ -1504,12 +1506,14 @@ void Player::sendZonePackets()
 {
   auto& teriMgr = Common::Service< World::Manager::TerritoryMgr >::ref();
   auto& fateMgr = Common::Service< World::Manager::FateMgr >::ref();
+  auto& playerMgr = Common::Service< World::Manager::PlayerMgr >::ref();
   auto pZone = teriMgr.getTerritoryByGuId( getTerritoryId() );
 
   auto initPacket = makeZonePacket< FFXIVIpcLogin >( getId() );
   initPacket->data().playerActorId = getId();
   queuePacket( initPacket );
 
+  sendStatusUpdate();
   sendInventory();
 
   if( isLogin() )
@@ -1526,7 +1530,6 @@ void Player::sendZonePackets()
     sendHuntingLog();
 
   sendStats();
-  sendStatusUpdate();
 
   // only initialize the UI if the player in fact just logged in.
   if( isLogin() )
@@ -1565,6 +1568,7 @@ void Player::sendZonePackets()
   sendLandFlags();
 
   queuePacket( makeInitZone( *this, *pZone ) );
+  sendStatusUpdate();
 
   pZone->onPlayerZoneIn( *this );
   fateMgr.onPlayerZoneIn( *this );
