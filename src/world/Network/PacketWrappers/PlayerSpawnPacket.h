@@ -44,8 +44,6 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
       m_data.GMRank = player.getGmRank();
       m_data.ModeArgs = player.getPersistentEmote();
       m_data.PoseEmote = player.getPose();
-      m_data.GrandCompany = player.getGc();
-      m_data.GrandCompanyRank = player.getGcRankArray()[ player.getGc() - 1 ];
 
       if( player.isDirectorInitialized() )
       {
