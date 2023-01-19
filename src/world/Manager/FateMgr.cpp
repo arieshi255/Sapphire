@@ -183,12 +183,8 @@ void Sapphire::World::Manager::FateMgr::queueFate( uint16_t zoneId, std::map< ui
       fate.second.weight = DefaultWeight;
   }
 
-  // Make sure the fate exists before attempting to spawn
-  if( fateZoneData.count( fateId ) != 0 )
-  {
-    spawnFate( zoneId, fateId );
-    m_zoneSpawnMap[ zoneId ] = ZoneData{ Util::getTimeSeconds(), nextSpawn };
-  }
+  spawnFate( zoneId, fateId );
+  m_zoneSpawnMap[ zoneId ] = ZoneData{ Util::getTimeSeconds(), nextSpawn };
 }
 
 void Sapphire::World::Manager::FateMgr::onPlayerZoneIn( Entity::Player& player )

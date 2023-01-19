@@ -29,7 +29,7 @@ namespace Sapphire::World::Manager
     std::optional< Sapphire::FatePtr > getFateById( uint32_t fateId );
 
   private:
-    std::map< uint32_t, uint32_t > m_fateTimeMap = 
+    std::unordered_map< uint32_t, uint32_t > m_fateTimeMap = 
     {
       { 159, 2 },
       { 161, 2 },
