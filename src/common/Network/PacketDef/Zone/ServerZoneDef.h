@@ -972,6 +972,8 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint32_t EntityId;
     uint32_t RestPoint;
     uint8_t Unknown8;
+    uint8_t Unknown9;
+    uint8_t Unknown10;
     uint8_t ExpansionLevel;
     uint8_t Race;
     uint8_t Tribe;
@@ -984,7 +986,6 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint8_t StartTown;
     uint8_t GrandCompany;
     uint8_t HomePoint;
-    uint8_t Anima;
     uint8_t Pet;
     uint8_t BuddyRank;
     uint8_t BuddyRankExceeded;
@@ -993,8 +994,6 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint8_t BuddyStain;
     uint8_t BuddyFavorite;
     uint8_t LegacyCompleteFlag;
-    uint8_t GrandCompanyRank;
-    uint8_t __padding1;
     float BuddyTimer;
     uint32_t BuddyExp;
     uint32_t GCSupplySeed;
@@ -1017,7 +1016,9 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint8_t __padding5;
     uint32_t Frontline01MatchCount;
     uint16_t Frontline01WeeklyMatchCount;
-    uint8_t Unknown1[3];
+    uint8_t Unknown1[10];
+    uint8_t Anima;
+    uint8_t Unknown11;
     uint8_t MobHuntWeeklyOrder;
     uint8_t Name[32];
     uint8_t PSNId[17];
@@ -1030,18 +1031,19 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint8_t Discovery16[320];
     uint8_t Discovery32[80];
     uint8_t HowTo[32];
-    uint8_t Companion[22];
+    uint8_t Companion[28];
     uint8_t ChocoboTaxiStand[8];
-    uint8_t CutScene[86];
-    float Position[3];
+    uint8_t CutScene[91];
     uint8_t BuddyPossession[8];
     uint8_t BuddyEquip[3];
     uint8_t GCSupplyItemFlags[4];
     uint8_t GCSupplyClassLevel[11];
     char BuddyName[21];
     char BuddySkillLine[3];
-    char MountList[7];
-    uint8_t IsFishCatched[53];
+
+    char MountList[9];
+
+    uint8_t IsFishCatched[61];
     uint8_t IsSpotVisited[25];
     uint8_t __padding6;
     uint16_t ListFishId[18];
@@ -1052,27 +1054,28 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint8_t __padding9;
     uint8_t __padding10;
     uint32_t PvPAction[10];
-    uint8_t BeastReputationRank[5];
+    uint8_t BeastReputationRank[8];
     uint8_t __padding11;
-    uint16_t BeastReputationValue[5];
-    uint8_t RandomContentRewardCounter[7];
+    uint16_t BeastReputationValue[8];
+    uint8_t RandomContentRewardCounter[9];
     uint16_t CycleTime[2];
     uint8_t PoseEmoteType[5];
     uint8_t __padding_;
     uint8_t Unknown[5];
     uint8_t SystemFlag[2];
-    uint8_t ContentsNoteComplete[5];
-    uint8_t Unknown2[6];
+    uint8_t ContentsNoteComplete[6];
     uint8_t GuildOrderClassClearFlags[28];
+    uint8_t Unknown2[5];
     uint8_t RelicNoteCount[10];
     uint8_t RelicNoteFlags[2];
-    uint8_t AdventureNoteSpotClearFlags[16];
+    uint8_t AdventureNoteSpotClearFlags[19];
     uint32_t Frontline01RankCount[3];
     uint16_t Frontline01WeeklyRankCount[3];
     uint8_t MobHuntOrderState[3];
     uint8_t MobHuntKillsCount[29];
-    uint8_t TripleTriadAcquireFlags[15];
+    uint8_t TripleTriadAcquireFlags[20];
     uint8_t SecretRecipeAcquireFlags[2];
+
     uint8_t padding[100];
   };
 
@@ -1119,9 +1122,8 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
     uint8_t ClassJob;
     uint8_t __padding1;
     uint16_t Lv;
+    uint16_t Lv1;
     uint16_t LvSync;
-    uint8_t __padding2;
-    uint8_t __padding3;
     uint32_t Exp;
     uint32_t RestPoint;
   };
