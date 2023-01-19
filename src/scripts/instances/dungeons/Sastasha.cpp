@@ -137,6 +137,7 @@ public:
     if( madison2 && !madison2->isAlive() )
     {
       instance.getEObjByName( "Rambadedoor_1" )->setPermissionInvisibility( 7 );
+      instance.getEObjByName( "Rambadedoor_1" )->setState( 1 );
       madison2 = nullptr;
     }
 
