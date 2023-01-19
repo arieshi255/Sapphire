@@ -17,6 +17,7 @@
 #include "Network/PacketWrappers/InspectPacket.h"
 #include "Network/PacketWrappers/ActorControlPacket.h"
 #include "Network/PacketWrappers/ActorControlTargetPacket.h"
+#include "Network/PacketWrappers/MoveActorPacket.h"
 
 #include "Action/Action.h"
 
@@ -412,8 +413,8 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
   const auto param3 = packet.data().Target;
 
 
-  Logger::debug( "\t\t {5} | {1:X} ( p1:{2:X} p2:{3:X} p3:{4:X} )",
-                 m_pSession->getId(), commandId, param1, param2, param3, packetCommandToString( commandId ) );
+  Logger::debug( "\t\t {7} | {1:X} ( p1:{2:X} p11:{3:X} p12:{4:X} p2:{5:X} p3:{6:X} )",
+                 m_pSession->getId(), commandId, param1, param11, param12, param2, param3, packetCommandToString( commandId ) );
 
   //Logger::Log(LoggingSeverity::debug, "[" + std::to_string(m_pSession->getId()) + "] " + pInPacket->toString());
 
@@ -450,8 +451,9 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
     case PacketCommand::TARGET_DECIDE: // Change target
     {
       uint64_t targetId = param1;
+      auto pPlayer = server.getPlayer( targetId );
 
-      if( targetId == player.getTargetId() || targetId == Common::INVALID_GAME_OBJECT_ID )
+      if( ( pPlayer && !pPlayer->isLoadingComplete() ) || targetId == Common::INVALID_GAME_OBJECT_ID )
         targetId = 0;
 
       player.changeTarget( targetId );
@@ -522,9 +524,15 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
       if( !emoteData )
         return;
 
-      player.sendToInRangeSet( makeActorControlTarget( player.getId(), ActorControlType::Emote, emoteId, 0, isSilent ? 1 : 0, 0, targetId ) );
-
       bool isPersistent = emoteData->data().Mode != 0;
+
+      //if( ( param1 & 100000000 ) )
+      //{
+      auto movePacket = std::make_shared< MoveActorPacket >( player, player.getRot(), 2, 0, 0, 0x5A / 4 );
+      player.sendToInRangeSet( movePacket );
+      //}
+
+      player.sendToInRangeSet( makeActorControlTarget( player.getId(), ActorControlType::Emote, emoteId, 0, isSilent ? 1 : 0, 0, targetId ) );
 
       if( isPersistent )
       {
@@ -535,7 +543,7 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
 
         player.sendToInRangeSet( makeActorControl( player.getId(), ActorControlType::SetStatus,
                                                           static_cast< uint8_t >( ActorStatus::EmoteMode ),
-                                                         emoteData->data().IsEndEmoteMode ? 1 : 0 ), true );
+                                                          emoteData->data().IsEndEmoteMode ? 1 : 0 ), true );
       }
 
       if( emoteData->data().IsAvailableWhenDrawn )
@@ -550,15 +558,23 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
       player.sendToInRangeSet( makeActorControl( player.getId(), ActorControlType::EmoteInterrupt ) );
       break;
     }
- /*   case PacketCommand::PersistentEmoteCancel: // cancel persistent emote
-    {
-      player.setPersistentEmote( 0 );
-      player.emoteInterrupt();
-      player.setStatus( ActorStatus::Idle );
-      auto pSetStatusPacket = makeActorControl( player.getId(), SetStatus, static_cast< uint8_t >( ActorStatus::Idle ) );
-      player.sendToInRangeSet( pSetStatusPacket );
+    case PacketCommand::EMOTE_MODE_CANCEL:
+    { 
+      if( player.getPersistentEmote() > 0 )
+      {
+        auto movePacket = std::make_shared< MoveActorPacket >( player, player.getRot(), 2, 0, 0, 0x5A / 4 );
+        player.sendToInRangeSet( movePacket );
+
+        player.setPersistentEmote( 0 );
+        player.sendToInRangeSet( makeActorControl( player.getId(), ActorControlType::EmoteInterrupt ) );
+        player.sendToInRangeSet( makeActorControl( player.getId(), ActorControlType::EmoteModeInterrupt ) );
+        player.sendToInRangeSet( makeActorControl( player.getId(), ActorControlType::EmoteModeInterruptNonImmediate ) );
+        player.setStatus( ActorStatus::Idle );
+
+        player.sendToInRangeSet( makeActorControl( player.getId(), SetStatus, static_cast< uint8_t >( ActorStatus::Idle ) ) );
+      }
       break;
-    }*/
+    }
     case PacketCommand::POSE_EMOTE_CONFIG: // change pose
     case PacketCommand::POSE_EMOTE_WORK: // reapply pose
     {
@@ -567,13 +583,13 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
       player.sendToInRangeSet( pSetStatusPacket, true );
       break;
     }
-    case PacketCommand::POSE_EMOTE_CANCEL: // cancel pose
+    /*case PacketCommand::POSE_EMOTE_CANCEL: // cancel pose
     {
       player.setPose( static_cast< uint8_t >( param12 ) );
       auto pSetStatusPacket = makeActorControl( player.getId(), SetPose, param11, param12 );
       player.sendToInRangeSet( pSetStatusPacket, true );
       break;
-    }
+    }*/
     case PacketCommand::REVIVE: // return dead / accept raise
     {
       switch( static_cast < ResurrectType >( param1 ) )
@@ -593,10 +609,10 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
     }
     case PacketCommand::FINISH_LOADING: // Finish zoning
     {
+      Service< World::Manager::PlayerMgr >::ref().onEquipDisplayFlagsChanged( player );
       auto& warpMgr = Service< WarpMgr >::ref();
       warpMgr.finishWarp( player );
       player.setLoadingComplete( true );
-      Service< World::Manager::PlayerMgr >::ref().onEquipDisplayFlagsChanged( player );
       if( player.isLogin() )
         player.setIsLogin( false );
       break;
@@ -608,7 +624,7 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
       player.teleportQuery( static_cast< uint16_t >( param11 ) );
       break;
     }
-  /*  case PacketCommand::DyeItem: // Dye item
+    case PacketCommand::DYE_ITEM: // Dye item
     {
       // param11 = item to dye container
       // param12 = item to dye slot
@@ -616,7 +632,7 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
       // param4 = dye bag slot
       player.setDyeingInfo( param11, param12, param2, param4 );
       break;
-    }*/
+    }
     case PacketCommand::DIRECTOR_INIT_RETURN: // Director init finish
     {
       pZone->onInitDirector( player );

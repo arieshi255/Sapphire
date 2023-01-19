@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include <vector>
+#include <stdint.h>
 
 namespace Excel
 {
