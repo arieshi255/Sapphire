@@ -31,7 +31,7 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
       m_data.ClassJob = static_cast< uint8_t >( player.getClass() );
       //m_data.status = static_cast< uint8_t >( pPlayer->getStatus() );
 
-// TODO: world id from server
+      // TODO: world id from server
       m_data.WorldId = 67;
       //m_data.homeWorldId = 67;
 
@@ -44,6 +44,8 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
       m_data.GMRank = player.getGmRank();
       m_data.ModeArgs = player.getPersistentEmote();
       m_data.PoseEmote = player.getPose();
+      m_data.GrandCompany = player.getGc();
+      m_data.GrandCompanyRank = player.getGcRankArray()[ player.getGc() - 1 ];
 
       if( player.isDirectorInitialized() )
       {

@@ -42,7 +42,8 @@ namespace Sapphire::Network::Packets::WorldPackets::Server
       m_data.Birthday = player.getBirthDay();
       m_data.StartTown = player.getStartTown();
       m_data.HomePoint = player.getHomepoint();
-      //m_data.pose = player.getPose();
+      m_data.GrandCompany = player.getGc();
+      m_data.GrandCompanyRank = player.getGcRankArray()[ player.getGc() - 1 ];
 
       memset( &m_data.Name[ 0 ], 0, sizeof( m_data.Name ) );
       strcpy( reinterpret_cast< char* >( m_data.Name ), player.getName().c_str() );
