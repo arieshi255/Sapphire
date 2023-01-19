@@ -98,7 +98,7 @@ void Sapphire::QuestBattle::onEnterSceneFinish( Entity::Player& player )
 {
   auto& eventMgr = Common::Service< World::Manager::EventMgr >::ref();
   eventMgr.eventStart( player, player.getId(), getDirectorId(), Event::EventHandler::GameProgress, 1, 0 );
-  eventMgr.playScene( player, getDirectorId(),  60000, 0, { 0x40000 /*unmapped*/ } );
+  eventMgr.playScene( player, getDirectorId(), 60000, 0, { 0x40000 /*unmapped*/ } );
   setSequence( 2 );
 }
 
