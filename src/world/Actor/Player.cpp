@@ -988,7 +988,11 @@ void Player::unlockMount( uint32_t mountId )
   if( mount->data().MountOrder == -1 )
     return;
 
-  m_mountGuide[ mount->data().MountOrder / 8 ] |= ( 1 << ( mount->data().MountOrder % 8 ) );
+  uint16_t index;
+  uint8_t value;
+  Util::valueToFlagByteIndexValue( mountId, value, index );
+
+  m_mountGuide[ index ] |= value;
 
   server().queueForPlayer( getCharacterId(), makeActorControlSelf( getId(), Network::ActorControl::SetMountBitmask, mount->data().MountOrder, 1 ) );
 }
