@@ -695,8 +695,8 @@ namespace Excel
     uint16_t TimelineID_Lying;
     uint16_t Unknown1A;
     uint16_t Icon;
-    uint16_t LogMessageTargeted;
-    uint16_t LogMessage;
+    uint16_t Log;
+    uint16_t LogSelf;
     uint8_t Category;
     uint8_t Mode;
     uint8_t Reward;
