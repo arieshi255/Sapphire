@@ -1384,13 +1384,13 @@ namespace Sapphire::Common
     HideUILockChar = 1, // as the name suggests, hides the ui and logs the char...
     InCombat = 2, // in Combat, locks gearchange/return/teleport
     Casting = 3,
-    InNpcEvent = 6, // when talking to an npc, locks ui giving "occupied" message
+    InNpcEvent = 20, // when talking to an npc, locks ui giving "occupied" message
 
  //   InNpcEvent1 = 10, // Sent together with InNpcEvent, when waiting for input? just a guess...
 
     BoundByDuty = 10,
-    BetweenAreas = 21,
-    WatchingCutscene = 34,
+    BetweenAreas = 37,
+    WatchingCutscene = 50,
 
   };
 
