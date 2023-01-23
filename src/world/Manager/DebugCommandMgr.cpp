@@ -376,6 +376,21 @@ void DebugCommandMgr::set( char* data, Entity::Player& player, std::shared_ptr< 
     fcResultPacket->data().CrestID = 0x0001000100010001;
     pSession->getZoneConnection()->queueOutPacket( fcResultPacket );
   }
+  else if( subCommand == "stateflag" )
+  {
+    uint8_t flag;
+    uint8_t state;
+    sscanf( params.c_str(), "%d %d", &flag, &state );
+
+    if( state == 1 )
+    {
+      player.setStateFlag( static_cast< Common::PlayerStateFlag >( flag ) );
+    }
+    else if( state == 0 )
+    {
+      player.unsetStateFlag( static_cast< Common::PlayerStateFlag >( flag ) );
+    }
+  }
   else
   {
     PlayerMgr::sendUrgent( player, "{0} is not a valid SET command.", subCommand );
