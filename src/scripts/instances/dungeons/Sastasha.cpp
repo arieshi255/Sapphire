@@ -45,10 +45,10 @@ private:
   static constexpr auto EventActionTouch = 24;
   static constexpr auto EventActionShort = 15;
 
-  Entity::BNpcPtr denn;
-  Entity::BNpcPtr madison2;
-  Entity::BNpcPtr madison;
-  Entity::BNpcPtr chopper;
+  //Entity::BNpcPtr denn;
+  //Entity::BNpcPtr madison2;
+  //Entity::BNpcPtr madison;
+  //Entity::BNpcPtr chopper;
 
 public:
   Sastasha() :
@@ -126,30 +126,31 @@ public:
 
   void onUpdate( InstanceContent& instance, uint64_t tickCount ) override
   {
+    auto madison = instance.getActiveBNpcByLayoutId( 3988325 );
+    auto madison2 = instance.getActiveBNpcByLayoutId( 4035056 );
+    auto denn = instance.getActiveBNpcByLayoutId( 3978771 );
+
     if( madison && !madison->isAlive() )
     {
       instance.setVar( 0, Seq3 );
       instance.getEObjByName( "Rambadedoor" )->setPermissionInvisibility( 7 );
-      madison2 = instance.createBNpcFromLayoutId( 4035056, 600, Common::BNpcType::Enemy );
-      madison = nullptr;
+      instance.createBNpcFromLayoutId( 4035056, 600, Common::BNpcType::Enemy );
     }
-
-    if( madison2 && !madison2->isAlive() )
+    else if( madison2 && !madison2->isAlive() )
     {
       instance.getEObjByName( "Rambadedoor_1" )->setPermissionInvisibility( 7 );
-      madison2 = nullptr;
     }
-
-    if( denn && !denn->isAlive() )
+    else if( denn && !denn->isAlive() )
     {
       instance.setVar( 0, SeqFinish );
       instance.sendDutyComplete();
-      denn = nullptr;
     }
   }
 
   void onTalk( InstanceContent& instance, Entity::Player& player, Entity::EventObject& eobj, uint32_t eventId ) override
   {
+    auto chopper = instance.getActiveBNpcByLayoutId( 4035011 );
+
     if( eobj.getName() == "Bloodymemo" )
     {
       eventMgr().playScene( player, eventId, 1, HIDE_HOTBAR, { 1 } );
@@ -187,7 +188,7 @@ public:
     if( eobj.getName() == "Inconspicuousswitch" )
     {
       if( !chopper )
-        chopper = instance.createBNpcFromLayoutId( 4035011, 400, Common::BNpcType::Enemy );
+        instance.createBNpcFromLayoutId( 4035011, 400, Common::BNpcType::Enemy );
       else if( chopper && !chopper->isAlive() )
       {
         eventMgr().eventActionStart( player, getId(), EventActionTouch,
@@ -197,7 +198,7 @@ public:
                                       instance.getEObjByName( "Hiddendoor" )->setPermissionInvisibility( 7 );
                                       instance.setVar( 0, Seq2 );
                                       instance.sendEventLogMessage( player, instance, 2064, { 0, 0 } );
-                                      madison = instance.createBNpcFromLayoutId( 3988325, 600, Common::BNpcType::Enemy );
+                                      instance.createBNpcFromLayoutId( 3988325, 600, Common::BNpcType::Enemy );
                                     },
                                     nullptr, getId() );
       }
@@ -225,7 +226,7 @@ public:
                                     eobj.setPermissionInvisibility( 1 );
                                     instance.setVar( 0, Seq5 );
                                     instance.sendEventLogMessage( player, instance, 2031, { 2000513 } );
-                                    denn = instance.createBNpcFromLayoutId( 3978771, 1000, Common::BNpcType::Enemy );
+                                    instance.createBNpcFromLayoutId( 3978771, 1000, Common::BNpcType::Enemy );
                                   },
                                   nullptr, getId() );
     }

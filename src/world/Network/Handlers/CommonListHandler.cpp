@@ -44,7 +44,7 @@ void Sapphire::Network::GameConnection::getCommonlistDetailHandler( const Packet
   resultPacket->data().ListType = data.ListType;
   resultPacket->data().CommunityID = data.CommunityID;
   resultPacket->data().DetailCharacterID = data.DetailCharacterID;
-  strcpy( resultPacket->data().FreeCompanyName, "Awooga" );
+  strcpy( resultPacket->data().FreeCompanyName, "Test FC" );
   
   resultPacket->data().GrandCompanyRank[ 0 ] = pPlayer->getGcRankArray()[0];
   resultPacket->data().GrandCompanyRank[ 1 ] = pPlayer->getGcRankArray()[1];
@@ -114,7 +114,7 @@ void Sapphire::Network::GameConnection::getCommonlistHandler( const Packets::FFX
         entry.SelectRegion = pPlayer->getSearchSelectRegion();
         entry.OnlineStatus = pPlayer->getOnlineStatusMask() | pPlayer->getOnlineStatusCustomMask();
 
-        strcpy( entry.FcTag, "Awoo" );
+        strcpy( entry.FcTag, "Test" );
       }
 
       entry.CharacterID = pPlayer->getCharacterId();
