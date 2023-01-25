@@ -720,7 +720,7 @@ void HousingMgr::buildPresetEstate( Entity::Player& player, HousingZone& zone, u
   // start house built event
   // CmnDefHousingBuildHouse_00149
   eventMgr.eventStart( player, player.getId(), 0x000B0095, Event::EventHandler::EventType::Housing, 1, 1 );
-  eventMgr.playScene( player, 0x000B0095, 0, static_cast< uint32_t >( SET_BASE | HIDE_HOTBAR ), { 1, plotNum } );
+  eventMgr.playScene( player, 0x000B0095, 0, static_cast< uint32_t >( SET_BASE | HIDE_UI | SILENT_ENTER_TERRI_ALL ), { 1, plotNum } );
 
   player.setLandFlags( Common::LandFlagsSlot::Private, Common::HOUSING_LAND_STATUS::HOUSING_LAND_STATUS_BUILDHOUSE, ident );
   sendLandFlagsSlot( player, Common::LandFlagsSlot::Private );
