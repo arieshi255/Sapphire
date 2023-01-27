@@ -1,5 +1,6 @@
 #include "ActionLut.h"
 #include "ActionLutData.h"
+#include "Logging/Logger.h"
 #include <fstream>
 #include <filesystem>
 #include <iostream>
