@@ -215,7 +215,7 @@ namespace Sapphire::ScriptAPI
   {
   }
 
-  void ZoneScript::onZoneInit()
+  void ZoneScript::onZoneInit( Territory& zone )
   {
   }
 

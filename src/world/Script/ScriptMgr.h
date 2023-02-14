@@ -90,7 +90,7 @@ namespace Sapphire::Scripting
 
     bool onStatusTimeOut( Entity::CharaPtr pActor, uint32_t effectId );
 
-    bool onZoneInit( const Territory& zone );
+    bool onZoneInit( Territory& zone );
 
     bool onEventHandlerReturn( Entity::Player& player, uint32_t eventId, uint16_t subEvent, uint16_t param1,
                                uint16_t param2, uint16_t param3 );

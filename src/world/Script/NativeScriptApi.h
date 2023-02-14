@@ -337,7 +337,7 @@ namespace Sapphire::ScriptAPI
   public:
     explicit ZoneScript( uint32_t zoneId );
 
-    virtual void onZoneInit();
+    virtual void onZoneInit( Territory& zone );
   };
 
   /*!
