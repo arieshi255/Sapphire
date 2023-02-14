@@ -107,6 +107,9 @@ namespace Sapphire::Event
       SwitchTalk = 0x001F,
       Adventure = 0x0020,
       DailyQuestSupply = 0x0021,
+      TripleTriad = 0x0023,
+      GoldSaucerArcadeMachine = 0x0024,
+      GoldSaucerTalk = 0x0025,
       ICDirector = 0x8003,
       QuestBattleDirector = 0x8006,
     };

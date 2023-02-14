@@ -81,6 +81,22 @@ std::string EventMgr::getEventName( uint32_t eventId )
         return "Aetheryte";
       return "Aethernet";
     }
+    case Event::EventHandler::EventHandlerType::GoldSaucerArcadeMachine:
+    {
+      auto arcadeInfo = exdData.getRow< Excel::GoldSaucerArcadeMachine >( eventId );
+      if( !arcadeInfo )
+        return unknown + "ArcadeMachine";
+
+      std::string name = arcadeInfo->getString( arcadeInfo->data().Text.Name );
+      std::string remove( ",â˜…_ '()[]-\x1a\x1\x2\x1f\x1\x3.:" );
+      Common::Util::eraseAllIn( name, remove );
+
+      return name;
+    }
+    case Event::EventHandler::EventHandlerType::GoldSaucerTalk:
+    {
+      return "GoldSaucerTalk" + std::to_string( eventId & 0xFFFF );
+    }
     case Event::EventHandler::EventHandlerType::ICDirector:
     {
       // auto contentInfo = pExdData->get< Sapphire::Data::InstanceContent >( eventId & 0xFFFF );
