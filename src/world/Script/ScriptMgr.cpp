@@ -669,12 +669,12 @@ bool Sapphire::Scripting::ScriptMgr::onStatusTimeOut( Entity::CharaPtr pChara, u
   return false;
 }
 
-bool Sapphire::Scripting::ScriptMgr::onZoneInit( const Territory& zone )
+bool Sapphire::Scripting::ScriptMgr::onZoneInit( Territory& zone )
 {
   auto script = m_nativeScriptMgr->getScript< Sapphire::ScriptAPI::ZoneScript >( zone.getTerritoryTypeId() );
   if( script )
   {
-    script->onZoneInit();
+    script->onZoneInit( zone );
     return true;
   }
 
