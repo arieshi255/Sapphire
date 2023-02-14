@@ -2353,6 +2353,62 @@ namespace Excel
     GatheringPointNameTextStruct Text;
   };
 
+  struct GoldSaucerArcadeMachineScore
+  {
+    uint32_t unknown1;
+    uint32_t Icon;
+    uint8_t Score;
+    uint8_t Score1;
+    uint8_t MGP;
+    uint8_t unknown5;
+  };
+
+  struct GoldSaucerArcadeMachineTextStruct
+  {
+    Excel::StringOffset Name;
+    Excel::StringOffset Description;
+    Excel::StringOffset Description2;
+    Excel::StringOffset Result;
+  };
+
+  struct GoldSaucerArcadeMachine
+  {
+    //GoldSaucerArcadeMachineScore Poor;
+    //GoldSaucerArcadeMachineScore Good;
+    //GoldSaucerArcadeMachineScore Great;
+    //GoldSaucerArcadeMachineScore Excellent;
+    GoldSaucerArcadeMachineScore Score[4];
+    GoldSaucerArcadeMachineTextStruct Text;
+    uint32_t Fail;
+    uint32_t unknown6;
+    uint16_t unknown7;
+    uint8_t unknown8;
+    uint8_t Time;
+    uint8_t unknown9;
+    uint8_t unknown10[3];
+    int8_t unknown11[6];
+    int8_t padding0[2];
+  };
+
+  struct GoldSaucerTalkTextStruct
+  {
+    Excel::StringOffset Talk;
+    Excel::StringOffset Response[10];
+  };
+
+  struct GoldSaucerTalk
+  {
+    GoldSaucerTalkTextStruct Text;
+    uint16_t EventId;
+    uint16_t unknown1[11];
+    uint8_t unknown2;
+    uint8_t unknown3;
+    uint8_t unknown4;
+    uint8_t padding0 : 6;
+    uint8_t unknown5 : 1;
+    uint8_t unknown6 : 1;
+  };
+
   /* 264369 */
   struct CraftTypeTextStruct
   {
