@@ -547,3 +547,9 @@ void PlayerMgr::sendLogMessage( Entity::Player& player, uint32_t messageId, uint
   server().queueForPlayer( player.getCharacterId(), makeActorControlTarget( player.getId(), ActorControlType::LogMsg, messageId,
                                                                             param2, param3, param4, param5, param6 ) );
 }
+
+void PlayerMgr::sendPrizeMessage( Entity::Player& player, uint32_t id, uint8_t prize )
+{
+  auto& server = Common::Service< World::WorldServer >::ref();
+  server.queueForPlayer( player.getCharacterId(), makeActorControlTarget( player.getId(), 0x38E, id, prize ) );
+}

@@ -88,5 +88,7 @@ namespace Sapphire::World::Manager
     static void sendLogMessage( Sapphire::Entity::Player& player, uint32_t messageId, uint32_t param2 = 0, uint32_t param3 = 0,
                                 uint32_t param4 = 0, uint32_t param5 = 0, uint32_t param6 = 0 );
 
+    static void sendPrizeMessage( Entity::Player& player, uint32_t id, uint8_t prize );
+
   };
 }
