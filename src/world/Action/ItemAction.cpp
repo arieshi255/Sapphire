@@ -15,11 +15,11 @@ using namespace Sapphire::World::Manager;
 using namespace Sapphire::Network::Packets::WorldPackets::Server;
 
 ItemAction::ItemAction( Sapphire::Entity::CharaPtr source, uint32_t itemId,
-                        std::shared_ptr< Excel::ExcelStruct< Excel::ItemAction > > itemActionData, uint16_t itemSourceSlot,
-                        uint16_t itemSourceContainer ) :
+                        std::shared_ptr< Excel::ExcelStruct< Excel::ItemAction > > itemActionData, uint16_t itemSourceContainer,
+                        uint16_t itemSourceSlot ) :
   m_itemAction( std::move( itemActionData ) ),
-  m_itemSourceSlot( itemSourceSlot ),
-  m_itemSourceContainer( itemSourceContainer )
+  m_itemSourceContainer( itemSourceContainer ),
+  m_itemSourceSlot( itemSourceSlot )
 {
   m_id = itemId;
   m_pSource = std::move( source );
@@ -93,9 +93,8 @@ void ItemAction::handleCompanionItem()
 {
   auto player = getSourceChara()->getAsPlayer();
 
-  Logger::debug( "Companion arg: {0}", m_itemAction->data().Calcu0Arg[ 0 ] );
-
   player->unlockCompanion( m_itemAction->data().Calcu0Arg[ 0 ] );
+  player->dropInventoryItem( static_cast< Common::InventoryType >( m_itemSourceContainer ), m_itemSourceSlot );
 }
 
 void ItemAction::handleMountItem()
@@ -103,5 +102,5 @@ void ItemAction::handleMountItem()
   auto player = getSourceChara()->getAsPlayer();
 
   player->unlockMount( m_itemAction->data().Calcu0Arg[ 0 ] );
-  player->discardItem( m_itemSourceContainer, m_itemSourceSlot );
+  player->dropInventoryItem( static_cast< Common::InventoryType >( m_itemSourceContainer ), m_itemSourceSlot );
 }

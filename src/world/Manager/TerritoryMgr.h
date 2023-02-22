@@ -77,6 +77,8 @@ namespace Sapphire::World::Manager
 
     bool createHousingTerritories();
 
+    bool createGoldSaucerTerritories();
+
     /*! caches TerritoryType details into m_territoryTypeMap */
     void loadTerritoryTypeDetailCache();
 
@@ -107,6 +109,9 @@ namespace Sapphire::World::Manager
 
     /*! returns true if the territoryType is a housing zone */
     bool isHousingTerritory( uint32_t territoryTypeId ) const;
+
+    /*! returns true if the territoryType is a gold saucer zone */
+    bool isGoldSaucerTerritory( uint32_t territoryTypeId ) const;
 
     uint32_t getInstanceContentId( uint32_t territoryTypeId ) const;
 

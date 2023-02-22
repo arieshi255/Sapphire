@@ -79,6 +79,9 @@ namespace Sapphire::Event
 
     void sendEventLogMessage( Sapphire::Entity::Player& player, Sapphire::InstanceContent& instance, uint32_t msgId, const std::initializer_list< uint32_t > args = {} ) const;
 
+    void sendDirectorUpdate( Sapphire::Entity::Player& player, uint32_t param1, uint32_t param2 = 0, uint32_t param3 = 0,
+                             uint32_t param4 = 0, uint32_t param5 = 0, uint32_t param6 = 0 ) const;
+
     void sendDirectorClear( Entity::Player& player ) const;
 
     void sendDirectorVars( Entity::Player& player ) const;

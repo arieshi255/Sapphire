@@ -269,6 +269,8 @@ namespace Sapphire::Network::ActorControl
      */
     DesynthOrReductionResult = 0x20F,
 
+    LogMessageOther1 = 0x210,
+
     GilTrailMsg = 0x211,
 
     HuntingLogRankUnlock = 0x21D,

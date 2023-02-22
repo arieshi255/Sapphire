@@ -29,8 +29,9 @@ namespace Sapphire::World::Manager
     void handlePlacedPlayerAction( Entity::Player& player, uint32_t actionId,
                                    std::shared_ptr< Excel::ExcelStruct< Excel::Action > > actionData, Common::FFXIVARR_POSITION3 pos, uint16_t sequence );
 
-    void handleItemAction( Entity::Player& player, uint32_t itemId, std::shared_ptr< Excel::ExcelStruct< Excel::ItemAction > > itemActionData,
-                           uint16_t itemSourceSlot, uint16_t itemSourceContainer );
+    void handleItemAction( Entity::Player& player, uint32_t itemId,
+                           std::shared_ptr< Excel::ExcelStruct< Excel::ItemAction > > itemActionData,
+                           uint16_t itemSourceContainer, uint16_t itemSourceSlot );
 
     void handleEventItemAction( Entity::Player& player, uint32_t itemId,
                                 std::shared_ptr< Excel::ExcelStruct< Excel::EventItem > > itemActionData, uint32_t sequence, uint64_t targetId );

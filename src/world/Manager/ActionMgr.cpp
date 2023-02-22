@@ -83,12 +83,12 @@ void ActionMgr::handleTargetedPlayerAction( Entity::Player& player, uint32_t act
 
 void ActionMgr::handleItemAction( Sapphire::Entity::Player& player, uint32_t itemId,
                                   Excel::ExcelStructPtr< Excel::ItemAction > itemActionData,
-                                  uint16_t itemSourceSlot, uint16_t itemSourceContainer )
+                                  uint16_t itemSourceContainer, uint16_t itemSourceSlot )
 {
   PlayerMgr::sendDebug( player, "got item act: {0}, slot: {1}, container: {2}", itemId, itemSourceSlot, itemSourceContainer );
 
   auto action = Action::make_ItemAction( player.getAsChara(), itemId, itemActionData,
-                                         itemSourceSlot, itemSourceContainer );
+                                         itemSourceContainer, itemSourceSlot );
 
   // todo: item actions don't have cast times? if so we can just start it and we're good
   action->start();

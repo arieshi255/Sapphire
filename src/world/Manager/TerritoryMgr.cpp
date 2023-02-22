@@ -140,8 +140,6 @@ bool TerritoryMgr::isDefaultTerritory( uint32_t territoryTypeId ) const
          pTeri->data().IntendedUse == TerritoryIntendedUse::Town ||
          pTeri->data().IntendedUse == TerritoryIntendedUse::OpenWorld ||
          pTeri->data().IntendedUse == TerritoryIntendedUse::OpeningArea ||
-         pTeri->data().IntendedUse == TerritoryIntendedUse::GoldSaucer ||
-         pTeri->data().IntendedUse == TerritoryIntendedUse::ChocoboSquare ||
          pTeri->data().IntendedUse == TerritoryIntendedUse::BeforeTrialDung;
 
 }
@@ -154,6 +152,17 @@ bool TerritoryMgr::isHousingTerritory( uint32_t territoryTypeId ) const
     return false;
 
   return pTeri->data().IntendedUse == TerritoryIntendedUse::HousingArea;
+}
+
+bool TerritoryMgr::isGoldSaucerTerritory( uint32_t territoryTypeId ) const
+{
+  auto pTeri = getTerritoryDetail( territoryTypeId );
+
+  if( !pTeri )
+    return false;
+
+  return pTeri->data().IntendedUse == TerritoryIntendedUse::GoldSaucer ||
+         pTeri->data().IntendedUse == TerritoryIntendedUse::ChocoboSquare;
 }
 
 uint32_t TerritoryMgr::getInstanceContentId( uint32_t territoryTypeId ) const
@@ -217,6 +226,49 @@ bool TerritoryMgr::createDefaultTerritories()
     m_territoryTypeIdToInstanceGuidMap[ territoryTypeId ] = instanceMap;
     m_territorySet.insert( { pZone } );
 
+  }
+
+  return true;
+}
+
+bool TerritoryMgr::createGoldSaucerTerritories()
+{
+  // separate gold saucer zones from default
+  auto& exdData = Common::Service< Data::ExdData >::ref();
+  for( const auto& territory : m_territoryTypeDetailCacheMap )
+  {
+    auto territoryTypeId = territory.first;
+    auto territoryInfo = territory.second;
+    uint32_t wardNum;
+    uint32_t wardMaxNum = 8;
+
+    if( territoryInfo->getString( territoryInfo->data().Name ).empty() )
+      continue;
+
+    auto pPlaceName = exdData.getRow< Excel::PlaceName >( territoryInfo->data().Area );
+
+    if( !pPlaceName || pPlaceName->getString( pPlaceName->data().Text.SGL ).empty() || !isGoldSaucerTerritory( territoryTypeId ) )
+      continue;
+
+    uint32_t guid = getNextInstanceId();
+
+    auto pGoldSaucerZone = make_GoldSaucerZone( territoryTypeId, guid, territoryInfo->getString( territoryInfo->data().Name ),
+                                                pPlaceName->getString( pPlaceName->data().Text.SGL ) );
+    pGoldSaucerZone->init();
+
+    Logger::info( "{0}\t{1}\t{2}\t{3:<10}\tHOUSING\t\t{4}#{5}",
+                  territoryTypeId,
+                  pGoldSaucerZone->getLandSetId(),
+                  territoryInfo->data().IntendedUse,
+                  territoryInfo->getString( territoryInfo->data().Name ),
+                  pPlaceName->getString( pPlaceName->data().Text.SGL ),
+                  wardNum );
+
+    InstanceIdToTerritoryPtrMap instanceMap;
+    instanceMap[ pHousingZone->getLandSetId() ] = pHousingZone;
+    m_guIdToTerritoryPtrMap[ pHousingZone->getLandSetId() ] = pHousingZone;
+    m_territoryTypeIdToInstanceGuidMap[ territoryTypeId ][ pHousingZone->getLandSetId() ] = pHousingZone;
+    m_territorySet.insert( { pHousingZone } );
   }
 
   return true;

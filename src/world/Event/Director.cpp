@@ -81,6 +81,14 @@ void Sapphire::Event::Director::sendEventLogMessage( Sapphire::Entity::Player& p
   instance.queuePacketForZone( player, packet, true );
 }
 
+void Sapphire::Event::Director::sendDirectorUpdate( Sapphire::Entity::Player& player, uint32_t param1, uint32_t param2, uint32_t param3,
+                                                    uint32_t param4, uint32_t param5, uint32_t param6 ) const
+{
+  auto& server = Common::Service< World::WorldServer >::ref();
+  server.queueForPlayer( player.getCharacterId(), makeActorControlSelf( player.getId(), DirectorUpdate, param1, param2,
+                                                                        param3, param4, param5, param6 ) );
+}
+
 void Sapphire::Event::Director::sendDirectorClear( Sapphire::Entity::Player& player ) const
 {
   auto& server = Common::Service< World::WorldServer >::ref();
