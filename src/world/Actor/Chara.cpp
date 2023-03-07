@@ -850,17 +850,29 @@ void Sapphire::Entity::Chara::onTick()
     }
   }
 
+  // TODO: don't really like how this is handled
+  // TODO: calculate actual damage from potency
   if( thisTickDmg != 0 )
   {
     takeDamage( thisTickDmg );
-    Network::Util::Packet::sendActorControl( getInRangePlayerIds( isPlayer() ), getId(), HPFloatingText, 0,
-                                             ActionEffectType::CALC_RESULT_TYPE_DAMAGE_HP, thisTickDmg );
+    server().queueForPlayers( getInRangePlayerIds( isPlayer() ), makeActorControl( getId(), HPFloatingText, 0,
+                                                                                   static_cast< uint8_t >( ActionEffectType::CALC_RESULT_TYPE_DAMAGE_HP ),
+                                                                                   thisTickDmg ) );
+    if( isPlayer() )
+      server().queueForPlayers( getInRangePlayerIds( isPlayer() ), makeHudParam( *getAsPlayer() ) );
+    else if( isBattleNpc() )
+      server().queueForPlayers( getInRangePlayerIds( isPlayer() ), makeHudParam( *getAsBNpc() ) );
   }
 
   if( thisTickHeal != 0 )
   {
     heal( thisTickHeal );
-    Network::Util::Packet::sendActorControl( getInRangePlayerIds( isPlayer() ), getId(), HPFloatingText, 0,
-                                             ActionEffectType::CALC_RESULT_TYPE_RECOVER_HP, thisTickHeal );
+    server().queueForPlayers( getInRangePlayerIds( isPlayer() ), makeActorControl( getId(), HPFloatingText, 0,
+                                                                                   static_cast< uint8_t >( ActionEffectType::CALC_RESULT_TYPE_RECOVER_HP ),
+                                                                                   thisTickHeal ) );
+    if( isPlayer() )
+      server().queueForPlayers( getInRangePlayerIds( isPlayer() ), makeHudParam( *getAsPlayer() ) );
+    else if( isBattleNpc() )
+      server().queueForPlayers( getInRangePlayerIds( isPlayer() ), makeHudParam( *getAsBNpc() ) );
   }
 }
