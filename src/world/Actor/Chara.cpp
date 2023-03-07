@@ -684,7 +684,13 @@ void Chara::updateStatusEffects()
 
 bool Chara::hasStatusEffect( uint32_t id )
 {
-  return m_statusEffectMap.find( id ) != m_statusEffectMap.end();
+  for( const auto& [ key, val ] : m_statusEffectMap )
+  {
+    if( val->getId() == id )
+      return true;
+  }
+
+  return false;
 }
 
 int64_t Chara::getLastUpdateTime() const
