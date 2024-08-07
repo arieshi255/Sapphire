@@ -47,32 +47,32 @@ enum ServerZoneIpcType :
 
   ActorFreeSpawn = 0x195, // updated 6.58 hotfix 2
 
-  InitZone = 0x02D1, // updated 6.58 hotfix 2
-  PrepareZoning = 0x0124, // updated 6.58 hotfix 2
+  InitZone = 0x0173, // updated 7.05
+  PrepareZoning = 0x0169, // updated 7.05
 
-  EffectResult = 0x0336, // updated 6.58 hotfix 2
-  EffectResultBasic = 0x023A, // updated 6.58 hotfix 2
+  EffectResult = 0x011F, // updated 7.05
+  EffectResultBasic = 0x0149, // updated 7.05
 
-  ActorControl = 0x0148, // updated 6.58 hotfix 2
-  ActorControlTarget = 0x032C, // updated 6.58 hotfix 2
-  ActorControlSelf = 0x025D, // updated 6.58 hotfix 2
-  ActorCast = 0x01BB, // updated 6.58 hotfix 2
-  ActorSetPos = 0x029D, // updated 6.58 hotfix 2
-  ActorMove = 0x011C, // updated 6.58 hotfix 2
-  ActorGauge = 0x03B3, // updated 6.58 hotfix 2
+  ActorControl = 0x03C7, // updated 7.05
+  ActorControlTarget = 0x00F6, // updated 7.05
+  ActorControlSelf = 0x022F, // updated 7.05
+  ActorCast = 0x016D, // updated 7.05
+  ActorSetPos = 0x0137, // updated 7.05
+  ActorMove = 0x0372, // updated 7.05
+  ActorGauge = 0x02A5, // updated 7.05
 
   /*!
    * @brief Used when resting
    */
-  UpdateHpMpTp = 0x007D, // updated 6.58 hotfix 2
-  UpdateClassInfo = 0x0172, // updated 6.58 hotfix 2
+  UpdateHpMpTp = 0x0200, // updated 7.05
+  UpdateClassInfo = 0x0147, // updated 7.05
 
   ///////////////////////////////////////////////////
 
   ChatBanned = 0xF06B,
-  Playtime = 0x03DE, // updated 6.58 hotfix 2
-  Logout = 0x0378, // updated 6.58 hotfix 2
-  CFNotify = 0x0279, // updated 6.58 hotfix 2
+  Playtime = 0x0113, // updated 7.05
+  Logout = 0x01B1, // updated 7.05
+  CFNotify = 0x01E5, // updated 7.05
   CFMemberStatus = 0x21F, // updated 6.58 hotfix 2?
   CFDutyInfo = 0x2E8, // updated 6.58 hotfix 2?
   CFPlayerInNeed = 0xF07F,
@@ -95,8 +95,8 @@ enum ServerZoneIpcType :
 
   SocialList = 0x1F2, // updated 6.58 hotfix 2
 
-  ExamineSearchInfo = 0x014A, // updated 6.58 hotfix 2
-  UpdateSearchInfo = 0x00CF, // updated 6.58 hotfix 2
+  ExamineSearchInfo = 0x0360, // updated 7.05
+  UpdateSearchInfo = 0x032F, // updated 7.05
   InitSearchInfo = 0x329,       // updated 6.58 hotfix 2
   ExamineSearchComment = 0x244, // updated 6.58 hotfix 2?
 
@@ -124,40 +124,40 @@ enum ServerZoneIpcType :
 
   MarketTaxRates = 0x01F8, // updated 5.35h
 
-  MarketBoardSearchResult = 0x0161, // updated 6.58 hotfix 2
-  MarketBoardItemListingCount = 0x0286, // updated 6.58 hotfix 2
-  MarketBoardItemListingHistory = 0x0229, // updated 6.58 hotfix 2
-  MarketBoardItemListing = 0x03E3, // updated 6.58 hotfix 2
-  MarketBoardPurchase = 0x0143, // updated 6.58 hotfix 2
-  ItemMarketBoardInfo = 0x01BC, // updated 6.58 hotfix 2
+  MarketBoardSearchResult = 0x0384, // updated 7.05
+  MarketBoardItemListingCount = 0x0233, // updated 7.05
+  MarketBoardItemListingHistory = 0x02BF, // updated 7.05
+  MarketBoardItemListing = 0x03A3, // updated 7.05
+  MarketBoardPurchase = 0x03DD, // updated 7.05
+  ItemMarketBoardInfo = 0x0309, // updated 7.05
 
   CharaFreeCompanyTag = 0x013B,   // updated 4.5
   FreeCompanyBoardMsg = 0x03DB,   // updated 5.58h
-  FreeCompanyInfo = 0x02D5, // updated 6.58 hotfix 2
-  FreeCompanyDialog = 0x029F, // updated 6.58 hotfix 2
+  FreeCompanyInfo = 0x0325, // updated 7.05
+  FreeCompanyDialog = 0x006D, // updated 7.05
   ExamineFreeCompanyInfo = 0x158, // updated 6.48
 
   FreeCompanyUpdateShortMessage = 0xF157, // added 5.0
 
-  StatusEffectList = 0x0383, // updated 6.58 hotfix 2
+  StatusEffectList = 0x0180, // updated 7.05
   EurekaStatusEffectList = 0x3A8, // updated 6.58 hotfix 2
   BossStatusEffectList = 0x28C,   // updated 6.58 hotfix 2
-  StatusEffectList2 = 0x0369, // updated 6.58 hotfix 2
-  StatusEffectList3 = 0x0163, // updated 6.58 hotfix 2
-  Effect = 0x037D, // updated 6.58 hotfix 2
+  StatusEffectList2 = 0x03DB, // updated 7.05
+  StatusEffectList3 = 0x037D, // updated 7.05
+  Effect = 0x01A6, // updated 7.05
   AoeEffect8 = 0x0F4, // updated 6.58 hotfix 2
   AoeEffect16 = 0x121, // updated 6.58 hotfix 2
   AoeEffect24 = 0x2E3, // updated 6.58 hotfix 2
   AoeEffect32 = 0x1FB, // updated 6.58 hotfix 2
   PersistantEffect = 0x163, // updated 6.58 hotfix 2
 
-  PlaceFieldMarker = 0x02E4, // updated 6.58 hotfix 2
-  PlaceFieldMarkerPreset = 0x030A, // updated 6.58 hotfix 2
+  PlaceFieldMarker = 0x0163, // updated 7.05
+  PlaceFieldMarkerPreset = 0x0397, // updated 7.05
 
   GCAffiliation = 0x35D, // updated 6.58 hotfix 2
 
-  PlayerSpawn = 0x039C, // updated 6.58 hotfix 2
-  NpcSpawn = 0x00A7, // updated 6.58 hotfix 2
+  PlayerSpawn = 0x0165, // updated 7.05
+  NpcSpawn = 0x0359, // updated 7.05
   NpcSpawn2 = 0x338,   // updated 6.58 hotfix 2?
 
   SomeCustomiseChangePacketProbably = 0x00CD, // added 5.18
@@ -166,11 +166,11 @@ enum ServerZoneIpcType :
   PartyUpdate = 0x2D8,       // updated 6.58 hotfix 2
   HateRank = 0x2A7,            // updated 6.58 hotfix 2
   HateList = 0x26B,            // updated 6.58 hotfix 2
-  ObjectSpawn = 0x03B8, // updated 6.58 hotfix 2
+  ObjectSpawn = 0x0119, // updated 7.05
   ObjectDespawn = 0x1D8,      // updated 6.58 hotfix 2
   SilentSetClassJob = 0xF18E, // updated 5.0 - seems to be the case, not sure if it's actually used for anything
-  PlayerSetup = 0x035F, // updated 6.58 hotfix 2
-  PlayerStats = 0x034F, // updated 6.58 hotfix 2
+  PlayerSetup = 0x02A7, // updated 7.05
+  PlayerStats = 0x020C, // updated 7.05
   ActorOwner = 0x2c3,         // updated 6.58 hotfix 2
   PlayerStateFlags = 0x1B6,   // updated 6.58 hotfix 2
   PlayerClassInfo = 0x238,    // updated 6.58 hotfix 2
@@ -178,37 +178,37 @@ enum ServerZoneIpcType :
   CharaVisualEffect = 0x0C1,  // updated 6.58 hotfix 2
 
   ModelEquip = 0x27D,    // updated 6.58 hotfix 2
-  Examine = 0x02C0, // updated 6.58 hotfix 2
+  Examine = 0x006A, // updated 7.05
   CharaNameReq = 0x33C, // updated 6.58 hotfix 2?
 
   // nb: see #565 on github
   UpdateRetainerItemSalePrice = 0xF19F, // updated 5.0
   RetainerSaleHistory = 0x23d,          // updated 6.48
-  RetainerInformation = 0x00ED, // updated 6.58 hotfix 2
+  RetainerInformation = 0x0357, // updated 7.05
 
   SetLevelSync = 0x1186, // not updated for 4.4, not sure what it is anymore
 
-  ItemInfo = 0x02F0, // updated 6.58 hotfix 2
-  ContainerInfo = 0x0069, // updated 6.58 hotfix 2
-  InventoryTransactionFinish = 0x009C, // updated 6.58 hotfix 2
-  InventoryTransaction = 0x02BD, // updated 6.58 hotfix 2
-  CurrencyCrystalInfo = 0x02DE, // updated 6.58 hotfix 2
+  ItemInfo = 0x02D0, // updated 7.05
+  ContainerInfo = 0x009B, // updated 7.05
+  InventoryTransactionFinish = 0x01D8, // updated 7.05
+  InventoryTransaction = 0x0197, // updated 7.05
+  CurrencyCrystalInfo = 0x0352, // updated 7.05
 
-  InventoryActionAck = 0x00DD, // updated 6.58 hotfix 2
-  UpdateInventorySlot = 0x034D, // updated 6.58 hotfix 2
+  InventoryActionAck = 0x030F, // updated 7.05
+  UpdateInventorySlot = 0x02D3, // updated 7.05
 
   HuntingLogEntry = 0x388, // updated 6.58 hotfix 2
 
-  EventPlay = 0x0155, // updated 6.58 hotfix 2
-  EventPlay4 = 0x00D0, // updated 6.58 hotfix 2
-  EventPlay8 = 0x022B, // updated 6.58 hotfix 2
-  EventPlay16 = 0x00D2, // updated 6.58 hotfix 2
-  EventPlay32 = 0x02CF, // updated 6.58 hotfix 2
-  EventPlay64 = 0x01D4, // updated 6.58 hotfix 2
-  EventPlay128 = 0x039F, // updated 6.58 hotfix 2
-  EventPlay255 = 0x0073, // updated 6.58 hotfix 2
-  EventStart = 0x0146, // updated 6.58 hotfix 2
-  EventFinish = 0x0339, // updated 6.58 hotfix 2
+  EventPlay = 0x026F, // updated 7.05
+  EventPlay4 = 0x027B, // updated 7.05
+  EventPlay8 = 0x0393, // updated 7.05
+  EventPlay16 = 0x0141, // updated 7.05
+  EventPlay32 = 0x02EB, // updated 7.05
+  EventPlay64 = 0x00A2, // updated 7.05
+  EventPlay128 = 0x018E, // updated 7.05
+  EventPlay255 = 0x0294, // updated 7.05
+  EventStart = 0x00BF, // updated 7.05
+  EventFinish = 0x010D, // updated 7.05
 
   EventReturn = 0x1F3, // updated 6.58 hotfix 2
 
@@ -240,7 +240,7 @@ enum ServerZoneIpcType :
 
   CFAvailableContents = 0xF1FD, // updated 4.2
 
-  WeatherChange = 0x021D, // updated 6.58 hotfix 2
+  WeatherChange = 0x01EF, // updated 7.05
   PlayerTitleList = 0x1FF, // updated 6.58 hotfix 2?
   Discovery = 0x11E,       // updated 6.58 hotfix 2
 
@@ -251,8 +251,8 @@ enum ServerZoneIpcType :
   MiniCactpotInit = 0x0286, // added 5.31
   ShopMessage = 0x016F,     // updated 6.58 hotfix 2
   LootMessage = 0x265,      // updated 6.58 hotfix 2
-  ResultDialog = 0x0362, // updated 6.58 hotfix 2
-  DesynthResult = 0x007F, // updated 6.58 hotfix 2
+  ResultDialog = 0x0177, // updated 7.05
+  DesynthResult = 0x037B, // updated 7.05
 
   /// Housing //////////////////////////////////////
 
@@ -315,19 +315,19 @@ enum ServerZoneIpcType :
   MahjongEndGame = 0x02C6,      // finished oorasu(all-last) round; shows a result screen.
 
   /// Airship & Submarine //////////////////////////////////////
-  AirshipTimers = 0x0123, // updated 6.58 hotfix 2
-  AirshipStatus = 0x0291, // updated 6.58 hotfix 2
-  AirshipStatusList = 0x023B, // updated 6.58 hotfix 2
-  AirshipExplorationResult = 0x01BD, // updated 6.58 hotfix 2
+  AirshipTimers = 0x0164, // updated 7.05
+  AirshipStatus = 0x02AD, // updated 7.05
+  AirshipStatusList = 0x02B8, // updated 7.05
+  AirshipExplorationResult = 0x0220, // updated 7.05
 
-  SubmarineTimers = 0x0185, // updated 6.58 hotfix 2
-  SubmarineProgressionStatus = 0x02DD, // updated 6.58 hotfix 2
-  SubmarineStatusList = 0x03E2, // updated 6.58 hotfix 2
-  SubmarineExplorationResult = 0x02AA, // updated 6.58 hotfix 2
+  SubmarineTimers = 0x0363, // updated 7.05
+  SubmarineProgressionStatus = 0x0135, // updated 7.05
+  SubmarineStatusList = 0x03BA, // updated 7.05
+  SubmarineExplorationResult = 0x0122, // updated 7.05
 
-  EnvironmentControl = 0x02FC, // updated 6.58 hotfix 2
+  EnvironmentControl = 0x03D3, // updated 7.05
   RSVData = 0x065,             // updated 6.58 hotfix 2?
-  IslandWorkshopSupplyDemand = 0x013C, // updated 6.58 hotfix 2
+  IslandWorkshopSupplyDemand = 0x02B5, // updated 7.05
 };
 
 /**
@@ -362,7 +362,7 @@ enum ClientZoneIpcType :
   PartyDisbandHandler = 0x03BF, // updated 6.58 hotfix 2
 
   SocialListHandler = 0x10B,               // updated 6.58 hotfix 2
-  SetSearchInfoHandler = 0x01A0, // updated 6.58 hotfix 2
+  SetSearchInfoHandler = 0x026E, // updated 7.05
   ReqSearchInfoHandler = 0x0235,           // updated 6.58 hotfix 2
   ReqExamineSearchCommentHandler = 0x00E7, // updated 5.0
 
@@ -375,7 +375,7 @@ enum ClientZoneIpcType :
   MarketBoardRequestItemListingInfo = 0x00F4,  // updated 5.58h
   MarketBoardRequestItemListings = 0x0122,     // updated 5.58h
   MarketBoardSearch = 0x0082,                  // updated 5.58h
-  MarketBoardPurchaseHandler = 0x0322, // updated 6.58 hotfix 2
+  MarketBoardPurchaseHandler = 0x0347, // updated 7.05
 
   ReqExamineFcInfo = 0xF37B, // updated 5.58h (prepended F. Conflicts with FinishLoadingHandler 6.38)
 
@@ -400,9 +400,9 @@ enum ClientZoneIpcType :
   GMCommand2 = 0x306,     // updated 6.58 hotfix 2
   AoESkillHandler = 0x0FC, // updated 6.58 hotfix 2
 
-  UpdatePositionHandler = 0x0256, // updated 6.58 hotfix 2
+  UpdatePositionHandler = 0x032C, // updated 7.05
 
-  InventoryModifyHandler = 0x023E, // updated 6.58 hotfix 2
+  InventoryModifyHandler = 0x0103, // updated 7.05
 
   InventoryEquipRecommendedItems = 0x355, // updated 6.58 hotfix 2
 
@@ -435,7 +435,7 @@ enum ClientZoneIpcType :
 
   SetSharedEstateSettings = 0x00D2, // updated 5.58h
 
-  UpdatePositionInstance = 0x0227, // updated 6.58 hotfix 2
+  UpdatePositionInstance = 0x03CE, // updated 7.0h
 
   PerformNoteHandler = 0x0243, // updated 5.58h
   Dive = 0x018C,                    // updated 6.30h
