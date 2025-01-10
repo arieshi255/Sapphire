@@ -381,6 +381,9 @@ bool MapMgr::isQuestVisible( Entity::Player& player, uint32_t questId, Excel::Qu
 
   if( quest.ClassJobUnlock && quest.ClassJob != 1 )
   {
+    if( player.isClassJobUnlocked( static_cast< ClassJob >( quest.ClassJobUnlock ) ) )
+      return false;
+
     if( quest.ClassJobUnlockFlag == 3 )
       if( static_cast< uint8_t >( player.getClass() ) != quest.ClassJobUnlock )
         return false;
@@ -514,15 +517,8 @@ bool MapMgr::isQuestVisible( Entity::Player& player, uint32_t questId, Excel::Qu
 
     if( classJob->data().ARRRelicQuestId == questId )
     {
-      for( auto j = 0; i < Common::CLASSJOB_TOTAL; ++i )
-      {
-        classJob = exdData.getRow< Excel::ClassJob >( i );
-
-        if( player.hasQuest( classJob->data().ARRRelicQuestId ) )
-          return false;
-      }
-
-      break;
+      if( player.hasQuest( classJob->data().ARRRelicQuestId ) )
+        return false;
     }
   }
 
