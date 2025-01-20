@@ -782,12 +782,12 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
     }
     case PacketCommand::HOUSING_LOAD_ROOM:
     {
-      uint8_t plot = ( param12 & 0xFF );
+      uint8_t plot = ( data.Arg1 & 0xFF );
 
       auto& housingMgr = Service< HousingMgr >::ref();
 
       uint16_t inventoryType = InventoryType::HousingExteriorPlacedItems;
-      if( param2 == 1 )
+      if( data.Arg2 == 1 )
         inventoryType = InventoryType::HousingExteriorStoreroom;
 
       housingMgr.sendEstateInventory( player, inventoryType, plot );
@@ -796,7 +796,7 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
     }
     case PacketCommand::HOUSING_BREAK:
     {
-      uint8_t plot = ( param12 & 0xFF );
+      uint8_t plot = ( data.Arg1 & 0xFF );
 
       auto& housingMgr = Service< HousingMgr >::ref();
 
@@ -816,11 +816,11 @@ void Sapphire::Network::GameConnection::commandHandler( const Packets::FFXIVARR_
     {
       auto& housingMgr = Service< HousingMgr >::ref();
 
-      auto slot = param4 & 0xFF;
-      auto sendToStoreroom = ( param4 >> 16 ) != 0;
+      auto slot = data.Arg3 & 0xFF;
+      auto sendToStoreroom = ( data.Arg3 >> 16 ) != 0;
 
       //player, plot, containerId, slot, sendToStoreroom
-      housingMgr.reqRemoveHousingItem( player, static_cast< uint16_t >( param12 ), static_cast< uint16_t >( param2 ), static_cast< uint8_t >( slot ), sendToStoreroom );
+      housingMgr.reqRemoveHousingItem( player, static_cast< uint16_t >( data.Arg1 ), static_cast< uint16_t >( data.Arg2 ), static_cast< uint8_t >( slot ), sendToStoreroom );
 
       break;
     }
